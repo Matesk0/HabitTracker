@@ -15,7 +15,7 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const STORAGE_KEY = '@habit_tracker_state_v2';
+const STORAGE_KEY = '@habit_tracker_state_v3';
 
 const DEFAULT_HOBBIES = [
   { id: 'reading', name: 'Reading', history: {} },
@@ -30,8 +30,7 @@ function isLeapYear(year) {
 function getDayOfYear(date) {
   const start = new Date(date.getFullYear(), 0, 0);
   const diff = date - start + ((start.getTimezoneOffset() - date.getTimezoneOffset()) * 60 * 1000);
-  const oneDay = 1000 * 60 * 60 * 24;
-  return Math.floor(diff / oneDay);
+  return Math.floor(diff / (1000 * 60 * 60 * 24));
 }
 
 function getDateKey(date) {
@@ -42,14 +41,13 @@ function getDateKey(date) {
 }
 
 export default function App() {
+  const [activeTab, setActiveTab] = useState('habits'); // 'habits' | 'year'
   const [hobbies, setHobbies] = useState(DEFAULT_HOBBIES);
   const [selectedHobbyId, setSelectedHobbyId] = useState('reading');
-  const [hobbyViewMode, setHobbyViewMode] = useState('30days'); // '30days' | 'year'
   const [modalVisible, setModalVisible] = useState(false);
   const [newHobbyName, setNewHobbyName] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
-  // Live date math
   const today = useMemo(() => new Date(), []);
   const todayKey = useMemo(() => getDateKey(today), [today]);
   const currentYear = today.getFullYear();
@@ -58,7 +56,6 @@ export default function App() {
   const daysLeftInYear = totalDaysInYear - currentDayOfYear;
   const yearPercentage = Math.round((currentDayOfYear / totalDaysInYear) * 100);
 
-  // Load saved state
   useEffect(() => {
     async function loadData() {
       try {
@@ -101,7 +98,6 @@ export default function App() {
     history: {},
   };
 
-  // Toggle today's status (Widget 1)
   const toggleToday = () => {
     const updatedHistory = { ...selectedHobby.history };
     if (updatedHistory[todayKey]) {
@@ -109,14 +105,12 @@ export default function App() {
     } else {
       updatedHistory[todayKey] = true;
     }
-
     const updatedHobbies = hobbies.map((h) =>
       h.id === selectedHobby.id ? { ...h, history: updatedHistory } : h
     );
     saveState(updatedHobbies);
   };
 
-  // Toggle any date in the dot matrix (Widget 2)
   const toggleDate = (dateKey) => {
     const updatedHistory = { ...selectedHobby.history };
     if (updatedHistory[dateKey]) {
@@ -124,14 +118,12 @@ export default function App() {
     } else {
       updatedHistory[dateKey] = true;
     }
-
     const updatedHobbies = hobbies.map((h) =>
       h.id === selectedHobby.id ? { ...h, history: updatedHistory } : h
     );
     saveState(updatedHobbies);
   };
 
-  // Streak calculation
   const streak = useMemo(() => {
     if (!selectedHobby || !selectedHobby.history) return 0;
     let count = 0;
@@ -154,7 +146,7 @@ export default function App() {
     return count;
   }, [selectedHobby, todayKey]);
 
-  // 30 Days Dot Matrix Data
+  // Last 30 Days (Balls only)
   const past30Days = useMemo(() => {
     const days = [];
     for (let i = 29; i >= 0; i--) {
@@ -162,9 +154,7 @@ export default function App() {
       d.setDate(today.getDate() - i);
       const key = getDateKey(d);
       days.push({
-        date: d,
         key,
-        dayNum: d.getDate(),
         isToday: i === 0,
         isDone: !!(selectedHobby?.history && selectedHobby.history[key]),
       });
@@ -175,57 +165,29 @@ export default function App() {
   const past30DoneCount = past30Days.filter((d) => d.isDone).length;
   const past30Percentage = Math.round((past30DoneCount / 30) * 100);
 
-  // Full Year Habit Matrix Data
-  const yearHabitDays = useMemo(() => {
-    const days = [];
-    for (let day = 1; day <= totalDaysInYear; day++) {
-      const d = new Date(currentYear, 0, day);
-      const key = getDateKey(d);
-      const isPast = day < currentDayOfYear;
-      const isToday = day === currentDayOfYear;
-      const isDone = !!(selectedHobby?.history && selectedHobby.history[key]);
-      days.push({
-        dayNum: day,
-        date: d,
-        key,
-        isPast,
-        isToday,
-        isDone,
-      });
-    }
-    return days;
-  }, [selectedHobby, currentYear, totalDaysInYear, currentDayOfYear]);
-
-  const yearHabitDoneCount = yearHabitDays.filter((d) => d.isDone).length;
-  const yearHabitPercentage = currentDayOfYear > 0 ? Math.round((yearHabitDoneCount / currentDayOfYear) * 100) : 0;
-
-  // Add hobby handler
   const handleAddHobby = () => {
     const trimmed = newHobbyName.trim();
     if (!trimmed) return;
     const newId = trimmed.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now().toString(36);
-    const newHobby = { id: newId, name: trimmed, history: {} };
-    const updated = [...hobbies, newHobby];
+    const updated = [...hobbies, { id: newId, name: trimmed, history: {} }];
     saveState(updated, newId);
     setNewHobbyName('');
     setModalVisible(false);
   };
 
-  // Delete hobby handler
   const handleDeleteHobby = (id) => {
     if (hobbies.length <= 1) {
       Alert.alert('Cannot delete', 'You need at least one habit in your list.');
       return;
     }
-    Alert.alert('Delete Habit', `Delete habit "${selectedHobby.name}"?`, [
+    Alert.alert('Delete Habit', `Delete "${selectedHobby.name}"?`, [
       { text: 'Cancel', style: 'cancel' },
       {
         text: 'Delete',
         style: 'destructive',
         onPress: () => {
           const filtered = hobbies.filter((h) => h.id !== id);
-          const nextSelected = filtered[0].id;
-          saveState(filtered, nextSelected);
+          saveState(filtered, filtered[0].id);
         },
       },
     ]);
@@ -247,243 +209,208 @@ export default function App() {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="light" />
+
+      {/* Top Main Navigation Tabs */}
+      <View style={styles.tabBar}>
+        <TouchableOpacity
+          style={[styles.tabBtn, activeTab === 'habits' && styles.tabBtnActive]}
+          onPress={() => setActiveTab('habits')}
+          activeOpacity={0.7}
+        >
+          <Text style={[styles.tabBtnText, activeTab === 'habits' && styles.tabBtnTextActive]}>
+            Habits
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tabBtn, activeTab === 'year' && styles.tabBtnActive]}
+          onPress={() => setActiveTab('year')}
+          activeOpacity={0.7}
+        >
+          <Text style={[styles.tabBtnText, activeTab === 'year' && styles.tabBtnTextActive]}>
+            Year Progress
+          </Text>
+        </TouchableOpacity>
+      </View>
+
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* App Top Bar */}
-        <View style={styles.appHeader}>
-          <View>
-            <Text style={styles.appTitle}>Habit Tracker</Text>
-            <Text style={styles.appSubtitle}>
-              {today.toLocaleDateString(undefined, {
-                weekday: 'long',
-                month: 'short',
-                day: 'numeric',
-              })}
-            </Text>
-          </View>
-          <TouchableOpacity
-            style={styles.addHobbyButton}
-            onPress={() => setModalVisible(true)}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.addHobbyButtonText}>+ Add</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Habit Selector Pills */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.pillScrollView}
-          contentContainerStyle={styles.pillContainer}
-        >
-          {hobbies.map((h) => {
-            const isSelected = h.id === selectedHobby.id;
-            return (
+        {activeTab === 'habits' ? (
+          <>
+            {/* Habit Picker Pills */}
+            <View style={styles.pillsRow}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.pillContainer}
+              >
+                {hobbies.map((h) => {
+                  const isSelected = h.id === selectedHobby.id;
+                  return (
+                    <TouchableOpacity
+                      key={h.id}
+                      style={[styles.pill, isSelected && styles.pillSelected]}
+                      onPress={() => {
+                        setSelectedHobbyId(h.id);
+                        saveState(hobbies, h.id);
+                      }}
+                      activeOpacity={0.7}
+                    >
+                      <Text style={[styles.pillText, isSelected && styles.pillTextSelected]}>
+                        {h.name}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
               <TouchableOpacity
-                key={h.id}
-                style={[styles.pill, isSelected && styles.pillSelected]}
-                onPress={() => {
-                  setSelectedHobbyId(h.id);
-                  saveState(hobbies, h.id);
-                }}
+                style={styles.addBtnSmall}
+                onPress={() => setModalVisible(true)}
                 activeOpacity={0.7}
               >
-                <Text style={[styles.pillText, isSelected && styles.pillTextSelected]}>
-                  {h.name}
+                <Text style={styles.addBtnSmallText}>+</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* WIDGET 1: Small Button Only (Done / Not Done) */}
+            <View style={styles.widgetCard}>
+              <View style={styles.widgetHeader}>
+                <View>
+                  <Text style={styles.widgetBigTitle} numberOfLines={1}>
+                    {selectedHobby.name}
+                  </Text>
+                  <Text style={styles.widgetSubtitle}>
+                    {isTodayDone ? 'Completed today' : 'Not done yet'}
+                  </Text>
+                </View>
+                <View style={styles.widgetHeaderRight}>
+                  <Text style={styles.widgetStatNumber}>{streak}</Text>
+                  <Text style={styles.widgetStatLabel}>streak</Text>
+                </View>
+              </View>
+
+              <TouchableOpacity
+                style={[styles.toggleButton, isTodayDone && styles.toggleButtonDone]}
+                onPress={toggleToday}
+                activeOpacity={0.8}
+              >
+                <Text style={[styles.toggleButtonText, isTodayDone && styles.toggleButtonTextDone]}>
+                  {isTodayDone ? '✓  Done' : '○  Mark as Done'}
                 </Text>
               </TouchableOpacity>
-            );
-          })}
-        </ScrollView>
-
-        {/* ========================================================= */}
-        {/* WIDGET 1: Small Button Only (Done / Not Done)             */}
-        {/* ========================================================= */}
-        <View style={styles.smallWidgetCard}>
-          <View style={styles.smallWidgetHeader}>
-            <View>
-              <Text style={styles.widgetBigTitle} numberOfLines={1}>
-                {selectedHobby.name}
-              </Text>
-              <Text style={styles.widgetSubtitle}>
-                Day {currentDayOfYear} of {totalDaysInYear}
-              </Text>
             </View>
-            <View style={styles.widgetHeaderRight}>
-              <Text style={styles.widgetStatNumber}>{streak}</Text>
-              <Text style={styles.widgetStatLabel}>day streak</Text>
-            </View>
-          </View>
 
-          <TouchableOpacity
-            style={[styles.smallWidgetButton, isTodayDone && styles.smallWidgetButtonDone]}
-            onPress={toggleToday}
-            activeOpacity={0.8}
-          >
-            <Text style={[styles.smallWidgetButtonIcon, isTodayDone && styles.smallWidgetButtonIconDone]}>
-              {isTodayDone ? '✓' : '○'}
-            </Text>
-            <Text style={[styles.smallWidgetButtonText, isTodayDone && styles.smallWidgetButtonTextDone]}>
-              {isTodayDone ? 'Completed today' : 'Tap to mark done'}
-            </Text>
-          </TouchableOpacity>
-
-          <Text style={styles.widgetCaption}>Dale</Text>
-        </View>
-
-        {/* ========================================================= */}
-        {/* WIDGET 2: Hobby Progress Dot Matrix (Like Image.png)      */}
-        {/* ========================================================= */}
-        <View style={styles.widgetCard}>
-          <View style={styles.widgetHeader}>
-            <View>
-              <Text style={styles.widgetBigTitle} numberOfLines={1}>
-                {selectedHobby.name}
-              </Text>
-              <Text style={styles.widgetSubtitle}>
-                {hobbyViewMode === '30days'
-                  ? `Last 30 Days • ${past30Percentage}%`
-                  : `Year ${currentYear} • ${yearHabitPercentage}%`}
-              </Text>
-            </View>
-            <View style={styles.widgetHeaderRight}>
-              <Text style={styles.widgetStatNumber}>
-                {hobbyViewMode === '30days' ? past30DoneCount : yearHabitDoneCount}
-              </Text>
-              <Text style={styles.widgetStatLabel}>
-                {hobbyViewMode === '30days' ? 'of 30 done' : 'days done'}
-              </Text>
-            </View>
-          </View>
-
-          {/* Toggle between 30 Days and Full Year Dot Matrix */}
-          <View style={styles.modeToggleContainer}>
-            <TouchableOpacity
-              style={[styles.modeToggleBtn, hobbyViewMode === '30days' && styles.modeToggleBtnActive]}
-              onPress={() => setHobbyViewMode('30days')}
-              activeOpacity={0.7}
-            >
-              <Text style={[styles.modeToggleText, hobbyViewMode === '30days' && styles.modeToggleTextActive]}>
-                30 Days
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.modeToggleBtn, hobbyViewMode === 'year' && styles.modeToggleBtnActive]}
-              onPress={() => setHobbyViewMode('year')}
-              activeOpacity={0.7}
-            >
-              <Text style={[styles.modeToggleText, hobbyViewMode === 'year' && styles.modeToggleTextActive]}>
-                Full Year
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* 30 Days Dot Matrix View (Matching Year Progress Dot Aesthetic) */}
-          {hobbyViewMode === '30days' ? (
-            <View style={styles.hobby30GridWrapper}>
-              {past30Days.map((d) => (
-                <TouchableOpacity
-                  key={d.key}
-                  style={styles.dotTouchable}
-                  onPress={() => toggleDate(d.key)}
-                  activeOpacity={0.6}
-                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                >
-                  <View
-                    style={[
-                      styles.hobbyDot,
-                      d.isDone && styles.hobbyDotDone,
-                      d.isToday && styles.hobbyDotToday,
-                    ]}
-                  />
-                  <Text style={[styles.dotDateLabel, d.isToday && styles.dotDateLabelToday]}>
-                    {d.dayNum}
+            {/* WIDGET 2: 30-Day Tracker (Balls Only, No Numbers) */}
+            <View style={styles.widgetCard}>
+              <View style={styles.widgetHeader}>
+                <View>
+                  <Text style={styles.widgetBigTitle} numberOfLines={1}>
+                    {selectedHobby.name}
                   </Text>
+                  <Text style={styles.widgetSubtitle}>Last 30 Days • {past30Percentage}%</Text>
+                </View>
+                <View style={styles.widgetHeaderRight}>
+                  <Text style={styles.widgetStatNumber}>{past30DoneCount}</Text>
+                  <Text style={styles.widgetStatLabel}>of 30 done</Text>
+                </View>
+              </View>
+
+              {/* 30 Balls Grid: 10 columns x 3 rows (clean, small balls, no numbers) */}
+              <View style={styles.grid30Balls}>
+                {past30Days.map((d) => (
+                  <TouchableOpacity
+                    key={d.key}
+                    onPress={() => toggleDate(d.key)}
+                    activeOpacity={0.6}
+                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                  >
+                    <View
+                      style={[
+                        styles.ball30,
+                        d.isDone && styles.ball30Done,
+                        d.isToday && styles.ball30Today,
+                      ]}
+                    />
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <View style={styles.widgetFooter}>
+                <Text style={styles.footerText}>Tap any ball to toggle</Text>
+                <TouchableOpacity onPress={() => handleDeleteHobby(selectedHobby.id)}>
+                  <Text style={styles.deleteText}>Delete habit</Text>
                 </TouchableOpacity>
-              ))}
+              </View>
             </View>
-          ) : (
-            /* Full Year Habit Dot Matrix View (19 Columns, Identical to Year Progress) */
-            <View style={styles.yearGridWrapper}>
-              {yearHabitDays.map((d) => (
-                <TouchableOpacity
-                  key={d.key}
-                  onPress={() => toggleDate(d.key)}
-                  activeOpacity={0.5}
-                  hitSlop={{ top: 3, bottom: 3, left: 3, right: 3 }}
-                >
-                  <View
-                    style={[
-                      styles.yearDot,
-                      d.isPast && styles.yearDotPast,
-                      d.isDone && styles.hobbyYearDotDone,
-                      d.isToday && styles.yearDotCurrent,
-                    ]}
-                  />
-                </TouchableOpacity>
-              ))}
+          </>
+        ) : (
+          /* ========================================================= */
+          /* TAB 2: YEAR PROGRESS (Replica of Image.png)                */
+          /* ========================================================= */
+          <>
+            {/* Small Top Year Widget (Matches top card in image.png) */}
+            <View style={styles.widgetCard}>
+              <View style={styles.widgetHeader}>
+                <View>
+                  <Text style={styles.widgetBigTitle}>{currentYear}</Text>
+                  <Text style={styles.widgetSubtitle}>
+                    Day {currentDayOfYear} of {totalDaysInYear}
+                  </Text>
+                </View>
+                <View style={styles.widgetHeaderRight}>
+                  <Text style={styles.widgetStatNumber}>{daysLeftInYear}</Text>
+                  <Text style={styles.widgetStatLabel}>days left</Text>
+                </View>
+              </View>
+              <Text style={styles.cardCaption}>Dale</Text>
             </View>
-          )}
 
-          <View style={styles.widgetFooter}>
-            <Text style={styles.footerText}>Tap any dot to toggle</Text>
-            <TouchableOpacity onPress={() => handleDeleteHobby(selectedHobby.id)}>
-              <Text style={styles.deleteHobbyText}>Delete habit</Text>
-            </TouchableOpacity>
-          </View>
+            {/* Main Year Progress Dot Matrix Widget (Matches bottom card in image.png) */}
+            <View style={styles.widgetCard}>
+              <View style={styles.widgetHeader}>
+                <View>
+                  <Text style={styles.widgetBigTitle}>{currentYear}</Text>
+                  <Text style={styles.widgetSubtitle}>
+                    Day {currentDayOfYear} • {yearPercentage}%
+                  </Text>
+                </View>
+                <View style={styles.widgetHeaderRight}>
+                  <Text style={styles.widgetStatNumber}>{daysLeftInYear}</Text>
+                  <Text style={styles.widgetStatLabel}>days left</Text>
+                </View>
+              </View>
 
-          <Text style={styles.widgetCaption}>Dale</Text>
-        </View>
+              {/* 19-Column Dot Grid: All passed days are WHITE balls */}
+              <View style={styles.yearGridWrapper}>
+                {Array.from({ length: totalDaysInYear }, (_, index) => {
+                  const dayNum = index + 1;
+                  const isPassedOrToday = dayNum <= currentDayOfYear;
+                  const isCurrent = dayNum === currentDayOfYear;
+                  return (
+                    <View
+                      key={dayNum}
+                      style={[
+                        styles.yearBall,
+                        isPassedOrToday && styles.yearBallPassed,
+                        isCurrent && styles.yearBallCurrent,
+                      ]}
+                    />
+                  );
+                })}
+              </View>
 
-        {/* ========================================================= */}
-        {/* WIDGET 3: Full Year Progress (Exact Image.png Replica)    */}
-        {/* ========================================================= */}
-        <View style={styles.widgetCard}>
-          <View style={styles.widgetHeader}>
-            <View>
-              <Text style={styles.widgetBigTitle}>{currentYear}</Text>
-              <Text style={styles.widgetSubtitle}>
-                Day {currentDayOfYear} • {yearPercentage}%
-              </Text>
+              <View style={styles.widgetFooter}>
+                <Text style={styles.footerText}>Jan 1</Text>
+                <Text style={[styles.footerText, { color: '#ffffff', fontWeight: '600' }]}>
+                  Day {currentDayOfYear}
+                </Text>
+                <Text style={styles.footerText}>Dec 31</Text>
+              </View>
+              <Text style={styles.cardCaption}>Dale</Text>
             </View>
-            <View style={styles.widgetHeaderRight}>
-              <Text style={styles.widgetStatNumber}>{daysLeftInYear}</Text>
-              <Text style={styles.widgetStatLabel}>days left</Text>
-            </View>
-          </View>
-
-          {/* 19 columns dot matrix matching image.png */}
-          <View style={styles.yearGridWrapper}>
-            {Array.from({ length: totalDaysInYear }, (_, index) => {
-              const dayNum = index + 1;
-              const isPast = dayNum < currentDayOfYear;
-              const isCurrent = dayNum === currentDayOfYear;
-              return (
-                <View
-                  key={dayNum}
-                  style={[
-                    styles.yearDot,
-                    isPast && styles.yearDotPast,
-                    isCurrent && styles.yearDotCurrent,
-                  ]}
-                />
-              );
-            })}
-          </View>
-
-          <View style={styles.widgetFooter}>
-            <Text style={styles.footerText}>Jan 1</Text>
-            <Text style={[styles.footerText, { color: '#ffffff', fontWeight: '600' }]}>
-              Today (Day {currentDayOfYear})
-            </Text>
-            <Text style={styles.footerText}>Dec 31</Text>
-          </View>
-
-          <Text style={styles.widgetCaption}>Dale</Text>
-        </View>
+          </>
+        )}
       </ScrollView>
 
       {/* Add Habit Modal */}
@@ -495,10 +422,10 @@ export default function App() {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalBox}>
-            <Text style={styles.modalTitle}>New Habit / Hobby</Text>
+            <Text style={styles.modalTitle}>New Habit</Text>
             <TextInput
               style={styles.modalInput}
-              placeholder="e.g. Guitar, Gym, Reading"
+              placeholder="e.g. Reading, Gym, Meditation"
               placeholderTextColor="#666"
               value={newHobbyName}
               onChangeText={setNewHobbyName}
@@ -507,7 +434,7 @@ export default function App() {
             />
             <View style={styles.modalButtons}>
               <TouchableOpacity
-                style={[styles.modalBtn, styles.modalBtnCancel]}
+                style={styles.modalBtnCancel}
                 onPress={() => {
                   setNewHobbyName('');
                   setModalVisible(false);
@@ -515,10 +442,7 @@ export default function App() {
               >
                 <Text style={styles.modalBtnCancelText}>Cancel</Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.modalBtn, styles.modalBtnSave]}
-                onPress={handleAddHobby}
-              >
+              <TouchableOpacity style={styles.modalBtnSave} onPress={handleAddHobby}>
                 <Text style={styles.modalBtnSaveText}>Add</Text>
               </TouchableOpacity>
             </View>
@@ -530,9 +454,10 @@ export default function App() {
 }
 
 const windowWidth = Dimensions.get('window').width;
-const cardWidth = Math.min(windowWidth - 32, 420);
-// 19 columns dot grid calculation (matches image.png)
-const dotSize = Math.floor((cardWidth - 44 - 18 * 4.5) / 19);
+const cardWidth = Math.min(windowWidth - 32, 380);
+// Smaller dots matching image.png exactly
+const dotGap = 4;
+const dotSize = Math.floor((cardWidth - 44 - 18 * dotGap) / 19);
 
 const styles = StyleSheet.create({
   container: {
@@ -547,56 +472,60 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     color: '#8e8e93',
-    fontSize: 16,
+    fontSize: 14,
   },
+
+  /* Top Tab Bar */
+  tabBar: {
+    flexDirection: 'row',
+    alignSelf: 'center',
+    backgroundColor: '#1c1c1e',
+    borderRadius: 20,
+    padding: 3,
+    marginVertical: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  tabBtn: {
+    paddingHorizontal: 22,
+    paddingVertical: 7,
+    borderRadius: 17,
+  },
+  tabBtnActive: {
+    backgroundColor: '#ffffff',
+  },
+  tabBtnText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#8e8e93',
+  },
+  tabBtnTextActive: {
+    color: '#000000',
+  },
+
   scrollContent: {
     paddingHorizontal: 16,
     paddingBottom: 40,
     alignItems: 'center',
   },
-  appHeader: {
+
+  /* Habit Pills Row */
+  pillsRow: {
     width: '100%',
-    maxWidth: 420,
+    maxWidth: 380,
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginVertical: 14,
-  },
-  appTitle: {
-    fontSize: 26,
-    fontWeight: '800',
-    color: '#ffffff',
-    letterSpacing: -0.5,
-  },
-  appSubtitle: {
-    fontSize: 13,
-    color: '#8e8e93',
-    marginTop: 2,
-  },
-  addHobbyButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 16,
-  },
-  addHobbyButtonText: {
-    color: '#ffffff',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  pillScrollView: {
-    width: '100%',
-    maxWidth: 420,
-    marginBottom: 16,
+    marginBottom: 14,
   },
   pillContainer: {
     flexDirection: 'row',
     gap: 8,
+    paddingRight: 8,
   },
   pill: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
+    paddingHorizontal: 15,
+    paddingVertical: 7,
+    borderRadius: 18,
     backgroundColor: '#1c1c1e',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.08)',
@@ -613,88 +542,42 @@ const styles = StyleSheet.create({
   pillTextSelected: {
     color: '#000000',
   },
-
-  /* Small Widget Card (Matches top widget in image.png) */
-  smallWidgetCard: {
-    width: '100%',
-    maxWidth: 420,
-    backgroundColor: '#1c1c1e',
-    borderRadius: 26,
-    padding: 22,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.06)',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.4,
-    shadowRadius: 14,
-    elevation: 8,
-  },
-  smallWidgetHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 16,
-  },
-  smallWidgetButton: {
-    flexDirection: 'row',
+  addBtnSmall: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
-    borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
-    borderRadius: 18,
-    paddingVertical: 14,
-    paddingHorizontal: 18,
-    gap: 10,
-    marginVertical: 4,
   },
-  smallWidgetButtonDone: {
-    backgroundColor: '#ffffff',
-    borderColor: '#ffffff',
-    shadowColor: '#ffffff',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-  },
-  smallWidgetButtonIcon: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#8e8e93',
-  },
-  smallWidgetButtonIconDone: {
-    color: '#000000',
-  },
-  smallWidgetButtonText: {
-    fontSize: 15,
-    fontWeight: '700',
+  addBtnSmallText: {
     color: '#ffffff',
-  },
-  smallWidgetButtonTextDone: {
-    color: '#000000',
+    fontSize: 18,
+    lineHeight: 20,
+    fontWeight: '600',
   },
 
-  /* Standard Widget Card Base (Matches bottom widget in image.png) */
+  /* Widget Card */
   widgetCard: {
     width: '100%',
-    maxWidth: 420,
+    maxWidth: 380,
     backgroundColor: '#1c1c1e',
-    borderRadius: 26,
+    borderRadius: 24,
     padding: 20,
-    marginBottom: 16,
+    marginBottom: 14,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.06)',
     shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 8 },
+    shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.4,
-    shadowRadius: 14,
-    elevation: 8,
+    shadowRadius: 12,
+    elevation: 6,
   },
   widgetHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 12,
+    marginBottom: 14,
   },
   widgetBigTitle: {
     fontSize: 24,
@@ -714,125 +597,97 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '700',
     color: '#ffffff',
-    lineHeight: 28,
+    lineHeight: 26,
   },
   widgetStatLabel: {
     fontSize: 12,
     color: '#8e8e93',
   },
 
-  /* Mode Switcher (30 Days / Full Year) */
-  modeToggleContainer: {
-    flexDirection: 'row',
-    alignSelf: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
-    borderRadius: 14,
-    padding: 3,
-    marginBottom: 14,
-    gap: 4,
+  /* Widget 1: Toggle Button */
+  toggleButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 16,
+    paddingVertical: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.12)',
   },
-  modeToggleBtn: {
-    paddingHorizontal: 14,
-    paddingVertical: 5,
-    borderRadius: 11,
+  toggleButtonDone: {
+    backgroundColor: '#ffffff',
+    borderColor: '#ffffff',
   },
-  modeToggleBtnActive: {
-    backgroundColor: 'rgba(255, 255, 255, 0.16)',
-  },
-  modeToggleText: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#8e8e93',
-  },
-  modeToggleTextActive: {
+  toggleButtonText: {
     color: '#ffffff',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  toggleButtonTextDone: {
+    color: '#000000',
   },
 
-  /* 30-Day Dot Matrix (Exact Year Progress Dot Aesthetic) */
-  hobby30GridWrapper: {
+  /* Widget 2: 30 Balls Grid (No numbers) */
+  grid30Balls: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 12,
     justifyContent: 'center',
     paddingVertical: 14,
   },
-  dotTouchable: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 44,
-    height: 48,
+  ball30: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.18)',
   },
-  hobbyDot: {
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    backgroundColor: 'rgba(255, 255, 255, 0.16)',
-    marginBottom: 4,
-  },
-  hobbyDotDone: {
+  ball30Done: {
     backgroundColor: '#ffffff',
     shadowColor: '#ffffff',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.8,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowRadius: 6,
   },
-  hobbyDotToday: {
+  ball30Today: {
     borderWidth: 2,
     borderColor: '#0a84ff',
   },
-  dotDateLabel: {
-    fontSize: 10,
-    fontWeight: '600',
-    color: 'rgba(255, 255, 255, 0.4)',
-  },
-  dotDateLabelToday: {
-    color: '#0a84ff',
-    fontWeight: '700',
-  },
 
-  /* Full Year Dot Matrix Grid (19 Columns, Replica of image.png) */
+  /* Widget 3: Full Year Dot Grid (Smaller balls, passed days are solid white) */
   yearGridWrapper: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 4.5,
+    gap: dotGap,
     justifyContent: 'flex-start',
     alignSelf: 'center',
-    width: (dotSize + 4.5) * 19,
+    width: (dotSize + dotGap) * 19,
     paddingVertical: 8,
   },
-  yearDot: {
-    width: Math.max(dotSize, 7),
-    height: Math.max(dotSize, 7),
-    borderRadius: Math.max(dotSize, 7) / 2,
+  yearBall: {
+    width: dotSize,
+    height: dotSize,
+    borderRadius: dotSize / 2,
     backgroundColor: 'rgba(255, 255, 255, 0.18)',
   },
-  yearDotPast: {
-    backgroundColor: 'rgba(255, 255, 255, 0.35)',
+  yearBallPassed: {
+    backgroundColor: '#ffffff', // Solid white for passed days
   },
-  yearDotCurrent: {
+  yearBallCurrent: {
     backgroundColor: '#ffffff',
-    transform: [{ scale: 1.25 }],
+    transform: [{ scale: 1.3 }],
     shadowColor: '#ffffff',
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.9,
+    shadowOpacity: 1,
     shadowRadius: 6,
     elevation: 4,
   },
-  hobbyYearDotDone: {
-    backgroundColor: '#ffffff',
-    shadowColor: '#ffffff',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 5,
-  },
 
-  /* Footers & Captions */
+  /* Footer & Caption */
   widgetFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 8,
+    marginTop: 10,
     paddingTop: 8,
     borderTopWidth: 1,
     borderTopColor: 'rgba(255, 255, 255, 0.06)',
@@ -841,16 +696,15 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: '#8e8e93',
   },
-  deleteHobbyText: {
+  deleteText: {
     fontSize: 11,
     color: '#ff453a',
   },
-  widgetCaption: {
+  cardCaption: {
     fontSize: 11,
     color: '#8e8e93',
     textAlign: 'center',
-    marginTop: 14,
-    fontWeight: '500',
+    marginTop: 12,
   },
 
   /* Modal */
@@ -863,54 +717,53 @@ const styles = StyleSheet.create({
   },
   modalBox: {
     width: '100%',
-    maxWidth: 340,
+    maxWidth: 320,
     backgroundColor: '#1c1c1e',
     borderRadius: 20,
-    padding: 22,
+    padding: 20,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.12)',
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   modalTitle: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '700',
     color: '#ffffff',
-    marginBottom: 14,
+    marginBottom: 12,
   },
   modalInput: {
     backgroundColor: 'rgba(255, 255, 255, 0.08)',
     borderRadius: 12,
-    paddingHorizontal: 14,
+    paddingHorizontal: 12,
     paddingVertical: 10,
     color: '#ffffff',
-    fontSize: 15,
-    marginBottom: 18,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    fontSize: 14,
+    marginBottom: 16,
   },
   modalButtons: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    gap: 10,
-  },
-  modalBtn: {
-    paddingHorizontal: 16,
-    paddingVertical: 9,
-    borderRadius: 12,
+    gap: 8,
   },
   modalBtnCancel: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 10,
     backgroundColor: 'rgba(255, 255, 255, 0.08)',
   },
   modalBtnCancelText: {
     color: '#8e8e93',
+    fontSize: 13,
     fontWeight: '600',
-    fontSize: 14,
   },
   modalBtnSave: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 10,
     backgroundColor: '#ffffff',
   },
   modalBtnSaveText: {
     color: '#000000',
+    fontSize: 13,
     fontWeight: '700',
-    fontSize: 14,
   },
 });
