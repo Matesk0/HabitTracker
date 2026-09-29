@@ -11,12 +11,10 @@
       --card-bg-hover: #242426;
       --text-main: #ffffff;
       --text-muted: #8e8e93;
-      --text-dim: #48484a;
       --dot-empty: rgba(255, 255, 255, 0.18);
       --dot-active: #ffffff;
-      --dot-highlight: #30d158;
       --accent: #0a84ff;
-      --border-radius: 28px;
+      --border-radius: 26px;
       --font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
 
@@ -40,18 +38,17 @@
 
     header {
       width: 100%;
-      max-width: 900px;
+      max-width: 440px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 28px;
-      flex-wrap: wrap;
-      gap: 16px;
+      margin-bottom: 20px;
+      gap: 12px;
     }
 
     .header-title h1 {
       font-size: 24px;
-      font-weight: 700;
+      font-weight: 800;
       letter-spacing: -0.5px;
     }
 
@@ -64,39 +61,57 @@
     .controls {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
 
-    .select-wrapper {
-      position: relative;
+    .pills-container {
+      width: 100%;
+      max-width: 440px;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+      scrollbar-width: none;
+    }
+    .pills-container::-webkit-scrollbar {
+      display: none;
     }
 
-    select, input, button {
+    .pill-btn {
+      padding: 8px 16px;
+      border-radius: 20px;
+      background: #1c1c1e;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+
+    .pill-btn.active {
+      background: #ffffff;
+      color: #000000;
+      border-color: #ffffff;
+    }
+
+    button {
       font-family: inherit;
       background: var(--card-bg);
       color: var(--text-main);
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 14px;
       padding: 8px 14px;
-      font-size: 14px;
+      font-size: 13px;
+      font-weight: 600;
       outline: none;
-      transition: all 0.2s ease;
-    }
-
-    select {
-      cursor: pointer;
-      padding-right: 28px;
-      appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%238e8e93' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: calc(100% - 10px) center;
-    }
-
-    button {
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 6px;
+      transition: all 0.2s ease;
     }
 
     button.btn-primary {
@@ -106,13 +121,13 @@
       background: rgba(255, 255, 255, 0.2);
     }
 
-    /* Widget Grid Layout */
+    /* Widgets */
     .widgets-container {
       width: 100%;
-      max-width: 900px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
+      max-width: 440px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
     }
 
     .widget-card {
@@ -121,27 +136,21 @@
       padding: 22px;
       display: flex;
       flex-direction: column;
-      position: relative;
       box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(20px);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .widget-card:hover {
-      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.06);
     }
 
     .widget-header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
     }
 
     .widget-title-area .title-big {
-      font-size: 26px;
+      font-size: 24px;
       font-weight: 700;
-      letter-spacing: -0.5px;
+      letter-spacing: -0.4px;
       line-height: 1.1;
     }
 
@@ -156,7 +165,7 @@
     }
 
     .widget-stat-right .stat-number {
-      font-size: 26px;
+      font-size: 24px;
       font-weight: 700;
       line-height: 1.1;
     }
@@ -167,147 +176,119 @@
       margin-top: 4px;
     }
 
-    /* Widget 1: Quick Done/Not Done Toggle */
-    .widget-toggle-content {
-      flex: 1;
+    /* Widget 1 Button */
+    .small-widget-button {
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 12px 0 6px;
-      gap: 14px;
-    }
-
-    .toggle-btn-circle {
-      width: 96px;
-      height: 96px;
-      border-radius: 50%;
-      border: 3px solid rgba(255, 255, 255, 0.12);
-      background: rgba(255, 255, 255, 0.04);
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1.5px solid rgba(255, 255, 255, 0.15);
+      border-radius: 18px;
+      padding: 14px 18px;
+      margin: 8px 0;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-
-    .toggle-btn-circle svg {
-      width: 44px;
-      height: 44px;
-      fill: none;
-      stroke: var(--text-muted);
-      stroke-width: 2.5;
-      stroke-linecap: round;
-      stroke-linejoin: round;
       transition: all 0.25s ease;
+      user-select: none;
     }
 
-    .toggle-btn-circle.done {
+    .small-widget-button.done {
       background: #ffffff;
       border-color: #ffffff;
-      box-shadow: 0 0 24px rgba(255, 255, 255, 0.4);
-      transform: scale(1.05);
+      color: #000000;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.35);
     }
 
-    .toggle-btn-circle.done svg {
-      stroke: #000000;
+    .small-widget-button .btn-icon {
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .small-widget-button .btn-text {
+      font-size: 15px;
+      font-weight: 700;
     }
 
-    .toggle-status-text {
-      font-size: 14px;
+    /* Mode toggle for Widget 2 */
+    .mode-toggle {
+      display: flex;
+      align-self: center;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 12px;
+      padding: 3px;
+      margin-bottom: 12px;
+      gap: 4px;
+    }
+
+    .mode-btn {
+      padding: 4px 12px;
+      border-radius: 9px;
+      font-size: 11px;
       font-weight: 600;
+      background: transparent;
+      border: none;
       color: var(--text-muted);
-      transition: color 0.2s;
+      cursor: pointer;
     }
 
-    .toggle-status-text.active {
+    .mode-btn.active {
+      background: rgba(255, 255, 255, 0.16);
       color: #ffffff;
     }
 
-    .streak-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 12px;
-      color: #ff9f0a;
-      background: rgba(255, 159, 10, 0.12);
-      padding: 4px 10px;
-      border-radius: 20px;
-      margin-top: 4px;
+    /* 30-Day Dot Grid (Image Dot Aesthetic) */
+    .hobby-30-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      padding: 12px 0;
     }
 
-    /* Widget 2: 30-Day Tracker Grid */
-    .grid-30 {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 9px;
-      margin: 10px 0;
-    }
-
-    .day-30-item {
-      aspect-ratio: 1;
-      border-radius: 8px;
-      background: var(--dot-empty);
-      border: 1px solid transparent;
-      cursor: pointer;
+    .hobby-dot-item {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      width: 44px;
+      height: 48px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .hobby-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--dot-empty);
+      margin-bottom: 4px;
+      transition: all 0.2s ease;
+    }
+
+    .hobby-dot.done {
+      background: #ffffff;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+    }
+
+    .hobby-dot.today {
+      border: 2px solid var(--accent);
+    }
+
+    .hobby-dot-label {
       font-size: 10px;
       font-weight: 600;
       color: rgba(255, 255, 255, 0.4);
-      transition: all 0.18s ease;
-      user-select: none;
-      position: relative;
+    }
+    .hobby-dot-label.today {
+      color: var(--accent);
+      font-weight: 700;
     }
 
-    .day-30-item:hover {
-      transform: scale(1.1);
-      border-color: rgba(255, 255, 255, 0.3);
-    }
-
-    .day-30-item.done {
-      background: #ffffff;
-      color: #000000;
-      box-shadow: 0 2px 8px rgba(255, 255, 255, 0.25);
-    }
-
-    .day-30-item.today {
-      border: 1.5px solid #0a84ff;
-    }
-
-    .day-30-item.today::after {
-      content: '';
-      position: absolute;
-      bottom: 2px;
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
-      background: #0a84ff;
-    }
-
-    .day-30-item.done.today::after {
-      background: #000000;
-    }
-
-    .widget-footer {
-      margin-top: auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-top: 10px;
-      font-size: 12px;
-      color: var(--text-muted);
-      border-top: 1px solid rgba(255, 255, 255, 0.06);
-    }
-
-    /* Widget 3: Full Year Tracker Grid */
+    /* 19-Column Dot Grid (Replica of Image.png) */
     .year-grid-container {
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 6px 0;
+      padding: 8px 0;
     }
 
     .year-grid {
@@ -317,16 +298,21 @@
     }
 
     .year-dot {
-      width: 9px;
-      height: 9px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
       background: var(--dot-empty);
       transition: all 0.15s ease;
-      position: relative;
+      cursor: pointer;
     }
 
     .year-dot.passed {
-      background: rgba(255, 255, 255, 0.45);
+      background: rgba(255, 255, 255, 0.4);
+    }
+
+    .year-dot.done {
+      background: #ffffff;
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
     }
 
     .year-dot.today {
@@ -336,18 +322,35 @@
       z-index: 2;
     }
 
+    .widget-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      padding-top: 8px;
+      font-size: 11px;
+      color: var(--text-muted);
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .delete-link {
+      color: #ff453a;
+      cursor: pointer;
+    }
+
     .widget-caption {
       font-size: 11px;
       color: var(--text-muted);
       text-align: center;
       margin-top: 14px;
+      font-weight: 500;
     }
 
-    /* Modal for Adding Hobby */
+    /* Modal */
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.65);
+      background: rgba(0, 0, 0, 0.7);
       backdrop-filter: blur(8px);
       display: none;
       align-items: center;
@@ -364,9 +367,8 @@
       border-radius: 20px;
       padding: 24px;
       width: 90%;
-      max-width: 360px;
+      max-width: 340px;
       border: 1px solid rgba(255, 255, 255, 0.1);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
     }
 
     .modal-content h3 {
@@ -376,8 +378,14 @@
 
     .modal-content input {
       width: 100%;
-      margin-bottom: 16px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
       padding: 10px 14px;
+      color: #fff;
+      font-size: 15px;
+      margin-bottom: 16px;
+      outline: none;
     }
 
     .modal-actions {
@@ -386,10 +394,9 @@
       gap: 8px;
     }
 
-    /* Tooltip */
     .tooltip {
       position: fixed;
-      background: #000000;
+      background: #000;
       color: #fff;
       font-size: 11px;
       padding: 4px 8px;
@@ -397,25 +404,13 @@
       pointer-events: none;
       opacity: 0;
       transform: translateY(-8px);
-      transition: opacity 0.15s ease, transform 0.15s ease;
+      transition: opacity 0.15s ease;
       z-index: 1000;
       border: 1px solid rgba(255, 255, 255, 0.15);
     }
-
     .tooltip.visible {
       opacity: 1;
       transform: translateY(-16px);
-    }
-
-    @media (max-width: 600px) {
-      .year-grid {
-        grid-template-columns: repeat(19, 8px);
-        gap: 4px;
-      }
-      .year-dot {
-        width: 7.5px;
-        height: 7.5px;
-      }
     }
   </style>
 </head>
@@ -423,113 +418,101 @@
 
   <header>
     <div class="header-title">
-      <h1>Habit & Day Tracker</h1>
+      <h1>Habit Tracker</h1>
       <p id="header-date">Loading date...</p>
     </div>
     <div class="controls">
-      <div class="select-wrapper">
-        <select id="hobby-select" aria-label="Selected Hobby"></select>
-      </div>
-      <button class="btn-primary" id="btn-add-hobby" title="Add new hobby">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-        Add
-      </button>
-      <button class="btn-primary" id="btn-delete-hobby" title="Delete current hobby">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-      </button>
+      <button class="btn-primary" id="btn-add-hobby" title="Add new hobby">+ Add</button>
     </div>
   </header>
 
+  <div class="pills-container" id="pills-container"></div>
+
   <main class="widgets-container">
 
-    <!-- WIDGET 1: Small Button Done / Not Done -->
-    <section class="widget-card" id="widget-toggle">
+    <!-- WIDGET 1: Small Card Quick Button -->
+    <section class="widget-card">
       <div class="widget-header">
         <div class="widget-title-area">
-          <div class="title-big" id="toggle-hobby-name">Reading</div>
-          <div class="subtitle">Today's Check-in</div>
+          <div class="title-big" id="w1-name">Reading</div>
+          <div class="subtitle" id="w1-day-sub">Day 18 of 365</div>
         </div>
         <div class="widget-stat-right">
-          <div class="stat-number" id="streak-count">0</div>
+          <div class="stat-number" id="w1-streak">0</div>
           <div class="stat-label">day streak</div>
         </div>
       </div>
 
-      <div class="widget-toggle-content">
-        <button class="toggle-btn-circle" id="toggle-today-btn" aria-label="Toggle completed today">
-          <svg viewBox="0 0 24 24">
-            <polyline points="20 6 9 17 4 12"></polyline>
-          </svg>
-        </button>
-        <div class="toggle-status-text" id="toggle-status-label">Tap to complete</div>
-        <div class="streak-badge" id="streak-badge-container">
-          <span>🔥</span> <span id="streak-text">0 Days Streak</span>
-        </div>
+      <div class="small-widget-button" id="w1-btn">
+        <span class="btn-icon" id="w1-btn-icon">○</span>
+        <span class="btn-text" id="w1-btn-text">Tap to mark done</span>
       </div>
-      <div class="widget-caption">Widget 1 • Quick Toggle</div>
+
+      <div class="widget-caption">Dale</div>
     </section>
 
-    <!-- WIDGET 2: 30-Day Interactive Tracker -->
-    <section class="widget-card" id="widget-month">
+    <!-- WIDGET 2: Hobby Progress Dot Matrix (Like Year Progress in Image.png) -->
+    <section class="widget-card">
       <div class="widget-header">
         <div class="widget-title-area">
-          <div class="title-big" id="month-hobby-name">Reading</div>
-          <div class="subtitle">Last 30 Days</div>
+          <div class="title-big" id="w2-name">Reading</div>
+          <div class="subtitle" id="w2-sub">Last 30 Days • 0%</div>
         </div>
         <div class="widget-stat-right">
-          <div class="stat-number" id="month-completion-pct">0%</div>
-          <div class="stat-label" id="month-completed-fraction">0 / 30 done</div>
+          <div class="stat-number" id="w2-stat">0</div>
+          <div class="stat-label" id="w2-stat-label">of 30 done</div>
         </div>
       </div>
 
-      <div class="grid-30" id="grid-30">
-        <!-- 30 interactive day cells generated by JS -->
+      <div class="mode-toggle">
+        <button class="mode-btn active" id="btn-mode-30">30 Days</button>
+        <button class="mode-btn" id="btn-mode-year">Full Year</button>
       </div>
+
+      <div id="w2-container"></div>
 
       <div class="widget-footer">
-        <span>Click any day to toggle</span>
-        <span id="month-range-label">Past 30 Days</span>
+        <span>Tap any dot to toggle</span>
+        <span class="delete-link" id="w2-delete">Delete habit</span>
       </div>
-      <div class="widget-caption">Widget 2 • 30-Day Tracker</div>
+      <div class="widget-caption">Dale</div>
     </section>
 
-    <!-- WIDGET 3: Full Year Tracker (Inspired by image.png) -->
-    <section class="widget-card" id="widget-year">
+    <!-- WIDGET 3: Full Year Progress (Exact Image.png replica) -->
+    <section class="widget-card">
       <div class="widget-header">
         <div class="widget-title-area">
-          <div class="title-big" id="year-title">2026</div>
-          <div class="subtitle" id="year-day-progress">Day 18 • 4%</div>
+          <div class="title-big" id="w3-year">2026</div>
+          <div class="subtitle" id="w3-sub">Day 18 • 4%</div>
         </div>
         <div class="widget-stat-right">
-          <div class="stat-number" id="year-days-left">348</div>
+          <div class="stat-number" id="w3-days-left">348</div>
           <div class="stat-label">days left</div>
         </div>
       </div>
 
       <div class="year-grid-container">
-        <div class="year-grid" id="year-grid">
-          <!-- 365 / 366 dots generated dynamically -->
-        </div>
+        <div class="year-grid" id="w3-grid"></div>
       </div>
 
       <div class="widget-footer">
-        <span id="year-footer-start">Jan 1</span>
-        <span id="year-footer-today">Today</span>
-        <span id="year-footer-end">Dec 31</span>
+        <span>Jan 1</span>
+        <span style="color:#fff;font-weight:600" id="w3-today-label">Today</span>
+        <span>Dec 31</span>
       </div>
-      <div class="widget-caption">Widget 3 • Full Year Tracker</div>
+      <div class="widget-caption">Dale</div>
     </section>
 
   </main>
 
-  <!-- Add Hobby Modal -->
+  <!-- Add Modal -->
   <div class="modal-backdrop" id="modal-backdrop">
     <div class="modal-content">
-      <h3>Add New Habit / Hobby</h3>
-      <input type="text" id="input-new-hobby" placeholder="e.g. Workout, Meditation, Code" maxlength="24" />
+      <h3>New Habit / Hobby</h3>
+      <input type="text" id="input-new-hobby" placeholder="e.g. Guitar, Gym, Reading" maxlength="24" />
       <div class="modal-actions">
         <button id="btn-modal-cancel">Cancel</button>
-        <button class="btn-primary" id="btn-modal-save">Add Habit</button>
+        <button class="btn-primary" id="btn-modal-save">Add</button>
       </div>
     </div>
   </div>
@@ -537,11 +520,10 @@
   <div class="tooltip" id="tooltip"></div>
 
   <script>
-    // State management
-    const STORAGE_KEY = 'habit_tracker_widgets_data';
-
+    const STORAGE_KEY = 'habit_tracker_state_v2';
     const defaultState = {
       selectedHobbyId: 'reading',
+      hobbyViewMode: '30days',
       hobbies: [
         { id: 'reading', name: 'Reading', history: {} },
         { id: 'workout', name: 'Workout', history: {} },
@@ -551,247 +533,280 @@
 
     function loadState() {
       try {
-        const data = localStorage.getItem(STORAGE_KEY);
-        if (data) return JSON.parse(data);
-      } catch (e) {
-        console.error(e);
-      }
+        const d = localStorage.getItem(STORAGE_KEY);
+        if (d) return JSON.parse(d);
+      } catch (e) {}
       return defaultState;
     }
 
-    function saveState(state) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    function saveState(s) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
     }
 
     let state = loadState();
 
-    // Date Utilities
-    function getTodayKey() {
-      const now = new Date();
-      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    function isLeapYear(y) {
+      return (y % 4 === 0 && y % 100 !== 0) || (y % 400 === 0);
+    }
+
+    function getDayOfYear(d) {
+      const s = new Date(d.getFullYear(), 0, 0);
+      const diff = d - s + ((s.getTimezoneOffset() - d.getTimezoneOffset()) * 60 * 1000);
+      return Math.floor(diff / (1000 * 60 * 60 * 24));
     }
 
     function getDateKey(d) {
       return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     }
 
-    function isLeapYear(year) {
-      return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
-    }
-
-    function getDayOfYear(date) {
-      const start = new Date(date.getFullYear(), 0, 0);
-      const diff = date - start + ((start.getTimezoneOffset() - date.getTimezoneOffset()) * 60 * 1000);
-      const oneDay = 1000 * 60 * 60 * 24;
-      return Math.floor(diff / oneDay);
-    }
-
     function getSelectedHobby() {
       return state.hobbies.find(h => h.id === state.selectedHobbyId) || state.hobbies[0];
     }
 
-    function calculateStreak(hobby) {
+    function calculateStreak(hobby, todayKey) {
       if (!hobby || !hobby.history) return 0;
-      let streak = 0;
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      const todayKey = getTodayKey();
-      let checkDate = new Date(today);
-
-      // If today is not done, check if yesterday was done to preserve active streak
-      if (!hobby.history[todayKey]) {
-        checkDate.setDate(checkDate.getDate() - 1);
-      }
+      let count = 0;
+      const cur = new Date();
+      cur.setHours(0, 0, 0, 0);
+      if (!hobby.history[todayKey]) cur.setDate(cur.getDate() - 1);
 
       while (true) {
-        const key = getDateKey(checkDate);
-        if (hobby.history[key]) {
-          streak++;
-          checkDate.setDate(checkDate.getDate() - 1);
-        } else {
-          break;
-        }
+        const k = getDateKey(cur);
+        if (hobby.history[k]) {
+          count++;
+          cur.setDate(cur.getDate() - 1);
+        } else break;
       }
-      return streak;
+      return count;
     }
 
-    // UI Elements
-    const hobbySelect = document.getElementById('hobby-select');
+    // Elements
+    const pillsContainer = document.getElementById('pills-container');
     const headerDate = document.getElementById('header-date');
-    const toggleHobbyName = document.getElementById('toggle-hobby-name');
-    const toggleTodayBtn = document.getElementById('toggle-today-btn');
-    const toggleStatusLabel = document.getElementById('toggle-status-label');
-    const streakCount = document.getElementById('streak-count');
-    const streakText = document.getElementById('streak-text');
-    const monthHobbyName = document.getElementById('month-hobby-name');
-    const grid30 = document.getElementById('grid-30');
-    const monthCompletionPct = document.getElementById('month-completion-pct');
-    const monthCompletedFraction = document.getElementById('month-completed-fraction');
-    const yearTitle = document.getElementById('year-title');
-    const yearDayProgress = document.getElementById('year-day-progress');
-    const yearDaysLeft = document.getElementById('year-days-left');
-    const yearGrid = document.getElementById('year-grid');
+    const w1Name = document.getElementById('w1-name');
+    const w1DaySub = document.getElementById('w1-day-sub');
+    const w1Streak = document.getElementById('w1-streak');
+    const w1Btn = document.getElementById('w1-btn');
+    const w1BtnIcon = document.getElementById('w1-btn-icon');
+    const w1BtnText = document.getElementById('w1-btn-text');
+
+    const w2Name = document.getElementById('w2-name');
+    const w2Sub = document.getElementById('w2-sub');
+    const w2Stat = document.getElementById('w2-stat');
+    const w2StatLabel = document.getElementById('w2-stat-label');
+    const w2Container = document.getElementById('w2-container');
+    const btnMode30 = document.getElementById('btn-mode-30');
+    const btnModeYear = document.getElementById('btn-mode-year');
+    const w2Delete = document.getElementById('w2-delete');
+
+    const w3Year = document.getElementById('w3-year');
+    const w3Sub = document.getElementById('w3-sub');
+    const w3DaysLeft = document.getElementById('w3-days-left');
+    const w3Grid = document.getElementById('w3-grid');
+    const w3TodayLabel = document.getElementById('w3-today-label');
+
     const tooltip = document.getElementById('tooltip');
     const modalBackdrop = document.getElementById('modal-backdrop');
     const inputNewHobby = document.getElementById('input-new-hobby');
-    const btnAddHobby = document.getElementById('btn-add-hobby');
-    const btnDeleteHobby = document.getElementById('btn-delete-hobby');
-    const btnModalCancel = document.getElementById('btn-modal-cancel');
-    const btnModalSave = document.getElementById('btn-modal-save');
 
-    // Tooltip logic
     function showTooltip(e, text) {
       tooltip.textContent = text;
       tooltip.classList.add('visible');
-      const rect = e.target.getBoundingClientRect();
-      tooltip.style.left = `${rect.left + rect.width / 2 - tooltip.offsetWidth / 2}px`;
-      tooltip.style.top = `${rect.top - 8}px`;
+      const r = e.target.getBoundingClientRect();
+      tooltip.style.left = `${r.left + r.width / 2 - tooltip.offsetWidth / 2}px`;
+      tooltip.style.top = `${r.top - 8}px`;
     }
+    function hideTooltip() { tooltip.classList.remove('visible'); }
 
-    function hideTooltip() {
-      tooltip.classList.remove('visible');
-    }
-
-    // Render Function
     function render() {
       const now = new Date();
       const currentYear = now.getFullYear();
-      const totalDaysInYear = isLeapYear(currentYear) ? 366 : 365;
+      const totalDays = isLeapYear(currentYear) ? 366 : 365;
       const dayOfYear = getDayOfYear(now);
-      const daysLeft = totalDaysInYear - dayOfYear;
-      const yearPct = Math.round((dayOfYear / totalDaysInYear) * 100);
+      const daysLeft = totalDays - dayOfYear;
+      const yearPct = Math.round((dayOfYear / totalDays) * 100);
+      const todayKey = getDateKey(now);
 
-      // Header
-      headerDate.textContent = now.toLocaleDateString(undefined, {
-        weekday: 'long', month: 'short', day: 'numeric', year: 'numeric'
-      });
+      headerDate.textContent = now.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
 
-      // Hobby Select options
-      hobbySelect.innerHTML = '';
+      // Pills
+      pillsContainer.innerHTML = '';
       state.hobbies.forEach(h => {
-        const opt = document.createElement('option');
-        opt.value = h.id;
-        opt.textContent = h.name;
-        opt.selected = h.id === state.selectedHobbyId;
-        hobbySelect.appendChild(opt);
+        const b = document.createElement('button');
+        b.className = `pill-btn ${h.id === state.selectedHobbyId ? 'active' : ''}`;
+        b.textContent = h.name;
+        b.onclick = () => {
+          state.selectedHobbyId = h.id;
+          saveState(state);
+          render();
+        };
+        pillsContainer.appendChild(b);
       });
 
       const hobby = getSelectedHobby();
       if (!hobby) return;
 
-      const todayKey = getTodayKey();
-      const isDoneToday = !!hobby.history[todayKey];
-      const streak = calculateStreak(hobby);
+      const isTodayDone = !!hobby.history[todayKey];
+      const streak = calculateStreak(hobby, todayKey);
 
-      // Widget 1: Quick Toggle
-      toggleHobbyName.textContent = hobby.name;
-      streakCount.textContent = streak;
-      streakText.textContent = `${streak} ${streak === 1 ? 'Day' : 'Days'} Streak`;
-
-      if (isDoneToday) {
-        toggleTodayBtn.classList.add('done');
-        toggleStatusLabel.textContent = 'Completed today! 🎉';
-        toggleStatusLabel.classList.add('active');
+      // Widget 1
+      w1Name.textContent = hobby.name;
+      w1DaySub.textContent = `Day ${dayOfYear} of ${totalDays}`;
+      w1Streak.textContent = streak;
+      if (isTodayDone) {
+        w1Btn.classList.add('done');
+        w1BtnIcon.textContent = '✓';
+        w1BtnText.textContent = 'Completed today';
       } else {
-        toggleTodayBtn.classList.remove('done');
-        toggleStatusLabel.textContent = 'Tap to complete';
-        toggleStatusLabel.classList.remove('active');
+        w1Btn.classList.remove('done');
+        w1BtnIcon.textContent = '○';
+        w1BtnText.textContent = 'Tap to mark done';
       }
 
-      // Widget 2: 30-Day Grid
-      monthHobbyName.textContent = hobby.name;
-      grid30.innerHTML = '';
-      let done30Count = 0;
+      // Widget 2
+      w2Name.textContent = hobby.name;
+      btnMode30.classList.toggle('active', state.hobbyViewMode === '30days');
+      btnModeYear.classList.toggle('active', state.hobbyViewMode === 'year');
 
-      for (let i = 29; i >= 0; i--) {
-        const d = new Date();
-        d.setDate(now.getDate() - i);
-        const key = getDateKey(d);
-        const isDone = !!hobby.history[key];
-        const isCurrentDay = i === 0;
+      w2Container.innerHTML = '';
+      if (state.hobbyViewMode === '30days') {
+        let done30 = 0;
+        const grid = document.createElement('div');
+        grid.className = 'hobby-30-grid';
 
-        if (isDone) done30Count++;
+        for (let i = 29; i >= 0; i--) {
+          const d = new Date();
+          d.setDate(now.getDate() - i);
+          const k = getDateKey(d);
+          const done = !!hobby.history[k];
+          const isCur = i === 0;
+          if (done) done30++;
 
-        const cell = document.createElement('div');
-        cell.className = `day-30-item ${isDone ? 'done' : ''} ${isCurrentDay ? 'today' : ''}`;
-        cell.textContent = d.getDate();
+          const item = document.createElement('div');
+          item.className = 'hobby-dot-item';
 
-        const label = `${d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}: ${isDone ? 'Completed' : 'Not Done'}`;
-        cell.addEventListener('mouseenter', (e) => showTooltip(e, label));
-        cell.addEventListener('mouseleave', hideTooltip);
+          const dot = document.createElement('div');
+          dot.className = `hobby-dot ${done ? 'done' : ''} ${isCur ? 'today' : ''}`;
 
-        cell.addEventListener('click', () => {
-          hobby.history[key] = !hobby.history[key];
-          if (!hobby.history[key]) delete hobby.history[key];
-          saveState(state);
-          render();
-        });
+          const lbl = document.createElement('div');
+          lbl.className = `hobby-dot-label ${isCur ? 'today' : ''}`;
+          lbl.textContent = d.getDate();
 
-        grid30.appendChild(cell);
+          item.appendChild(dot);
+          item.appendChild(lbl);
+
+          const tipText = `${d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}: ${done ? 'Completed' : 'Not done'}`;
+          item.onmouseenter = (e) => showTooltip(e, tipText);
+          item.onmouseleave = hideTooltip;
+
+          item.onclick = () => {
+            hobby.history[k] = !hobby.history[k];
+            if (!hobby.history[k]) delete hobby.history[k];
+            saveState(state);
+            render();
+          };
+
+          grid.appendChild(item);
+        }
+        w2Container.appendChild(grid);
+
+        const pct30 = Math.round((done30 / 30) * 100);
+        w2Sub.textContent = `Last 30 Days • ${pct30}%`;
+        w2Stat.textContent = done30;
+        w2StatLabel.textContent = 'of 30 done';
+      } else {
+        // Full Year Dot Matrix View for Hobby
+        let yearDone = 0;
+        const cont = document.createElement('div');
+        cont.className = 'year-grid-container';
+        const grid = document.createElement('div');
+        grid.className = 'year-grid';
+
+        for (let day = 1; day <= totalDays; day++) {
+          const d = new Date(currentYear, 0, day);
+          const k = getDateKey(d);
+          const done = !!hobby.history[k];
+          const isPast = day < dayOfYear;
+          const isCur = day === dayOfYear;
+          if (done) yearDone++;
+
+          const dot = document.createElement('div');
+          dot.className = `year-dot ${isPast ? 'passed' : ''} ${done ? 'done' : ''} ${isCur ? 'today' : ''}`;
+
+          const tipText = `${d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}: ${done ? 'Completed' : 'Not done'}`;
+          dot.onmouseenter = (e) => showTooltip(e, tipText);
+          dot.onmouseleave = hideTooltip;
+
+          dot.onclick = () => {
+            hobby.history[k] = !hobby.history[k];
+            if (!hobby.history[k]) delete hobby.history[k];
+            saveState(state);
+            render();
+          };
+
+          grid.appendChild(dot);
+        }
+        cont.appendChild(grid);
+        w2Container.appendChild(cont);
+
+        const yearPctHabit = dayOfYear > 0 ? Math.round((yearDone / dayOfYear) * 100) : 0;
+        w2Sub.textContent = `Year ${currentYear} • ${yearPctHabit}%`;
+        w2Stat.textContent = yearDone;
+        w2StatLabel.textContent = 'days done';
       }
 
-      const pct30 = Math.round((done30Count / 30) * 100);
-      monthCompletionPct.textContent = `${pct30}%`;
-      monthCompletedFraction.textContent = `${done30Count} / 30 done`;
+      // Widget 3
+      w3Year.textContent = currentYear;
+      w3Sub.textContent = `Day ${dayOfYear} • ${yearPct}%`;
+      w3DaysLeft.textContent = daysLeft;
+      w3TodayLabel.textContent = `Today (Day ${dayOfYear})`;
 
-      // Widget 3: Full Year Grid
-      yearTitle.textContent = currentYear;
-      yearDayProgress.textContent = `Day ${dayOfYear} • ${yearPct}%`;
-      yearDaysLeft.textContent = daysLeft;
-
-      yearGrid.innerHTML = '';
-      for (let day = 1; day <= totalDaysInYear; day++) {
+      w3Grid.innerHTML = '';
+      for (let day = 1; day <= totalDays; day++) {
         const dot = document.createElement('div');
         dot.className = 'year-dot';
+        if (day < dayOfYear) dot.classList.add('passed');
+        else if (day === dayOfYear) dot.classList.add('today');
 
-        if (day < dayOfYear) {
-          dot.classList.add('passed');
-        } else if (day === dayOfYear) {
-          dot.classList.add('today');
-        }
+        const d = new Date(currentYear, 0, day);
+        dot.onmouseenter = (e) => showTooltip(e, `${d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} (Day ${day})`);
+        dot.onmouseleave = hideTooltip;
 
-        const dotDate = new Date(currentYear, 0, day);
-        const label = `${dotDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} (Day ${day})`;
-        dot.addEventListener('mouseenter', (e) => showTooltip(e, label));
-        dot.addEventListener('mouseleave', hideTooltip);
-
-        yearGrid.appendChild(dot);
+        w3Grid.appendChild(dot);
       }
     }
 
-    // Event Listeners
-    toggleTodayBtn.addEventListener('click', () => {
+    // Listeners
+    w1Btn.onclick = () => {
       const hobby = getSelectedHobby();
       if (!hobby) return;
-      const todayKey = getTodayKey();
-      hobby.history[todayKey] = !hobby.history[todayKey];
-      if (!hobby.history[todayKey]) delete hobby.history[todayKey];
+      const k = getDateKey(new Date());
+      hobby.history[k] = !hobby.history[k];
+      if (!hobby.history[k]) delete hobby.history[k];
       saveState(state);
       render();
-    });
+    };
 
-    hobbySelect.addEventListener('change', (e) => {
-      state.selectedHobbyId = e.target.value;
+    btnMode30.onclick = () => {
+      state.hobbyViewMode = '30days';
       saveState(state);
       render();
-    });
+    };
 
-    btnAddHobby.addEventListener('click', () => {
+    btnModeYear.onclick = () => {
+      state.hobbyViewMode = 'year';
+      saveState(state);
+      render();
+    };
+
+    document.getElementById('btn-add-hobby').onclick = () => {
       inputNewHobby.value = '';
       modalBackdrop.classList.add('open');
       setTimeout(() => inputNewHobby.focus(), 50);
-    });
+    };
 
-    btnModalCancel.addEventListener('click', () => {
-      modalBackdrop.classList.remove('open');
-    });
-
-    modalBackdrop.addEventListener('click', (e) => {
-      if (e.target === modalBackdrop) modalBackdrop.classList.remove('open');
-    });
-
-    btnModalSave.addEventListener('click', () => {
+    document.getElementById('btn-modal-cancel').onclick = () => modalBackdrop.classList.remove('open');
+    document.getElementById('btn-modal-save').onclick = () => {
       const name = inputNewHobby.value.trim();
       if (!name) return;
       const id = name.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now().toString(36);
@@ -800,28 +815,22 @@
       saveState(state);
       modalBackdrop.classList.remove('open');
       render();
-    });
+    };
 
-    inputNewHobby.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') btnModalSave.click();
-      if (e.key === 'Escape') modalBackdrop.classList.remove('open');
-    });
-
-    btnDeleteHobby.addEventListener('click', () => {
+    w2Delete.onclick = () => {
       if (state.hobbies.length <= 1) {
-        alert('You need at least one hobby in your tracker.');
+        alert('You must have at least one habit.');
         return;
       }
       const hobby = getSelectedHobby();
-      if (confirm(`Delete habit "${hobby.name}"?`)) {
+      if (confirm(`Delete "${hobby.name}"?`)) {
         state.hobbies = state.hobbies.filter(h => h.id !== hobby.id);
         state.selectedHobbyId = state.hobbies[0].id;
         saveState(state);
         render();
       }
-    });
+    };
 
-    // Initial render
     render();
   </script>
 </body>
