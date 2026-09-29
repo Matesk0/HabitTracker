@@ -255,6 +255,7 @@
     .delete-link {
       color: #ff453a;
       cursor: pointer;
+      font-weight: 500;
     }
 
     .card-caption {
@@ -264,11 +265,11 @@
       margin-top: 12px;
     }
 
-    /* Modal */
+    /* Unified Modals */
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.7);
+      background: rgba(0, 0, 0, 0.75);
       backdrop-filter: blur(8px);
       display: none;
       align-items: center;
@@ -277,44 +278,53 @@
     }
     .modal-backdrop.open { display: flex; }
 
-    .modal-content {
+    .modal-box {
       background: var(--card-bg);
-      border-radius: 20px;
-      padding: 20px;
+      border-radius: 22px;
+      padding: 22px;
       width: 90%;
       max-width: 320px;
       border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
     }
 
-    .modal-content h3 { font-size: 17px; margin-bottom: 12px; }
-    .modal-content input {
+    .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+    .modal-desc { font-size: 14px; color: var(--text-muted); margin-bottom: 18px; line-height: 1.4; }
+    .modal-input {
       width: 100%;
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 12px;
-      padding: 10px;
+      padding: 11px 14px;
       color: #fff;
       font-size: 14px;
-      margin-bottom: 16px;
+      margin-bottom: 18px;
       outline: none;
     }
-    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
-    .btn-cancel {
-      padding: 8px 14px;
-      border-radius: 10px;
-      background: rgba(255, 255, 255, 0.08);
-      border: none;
-      color: var(--text-muted);
+    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
+
+    .modal-btn {
+      padding: 9px 16px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
       cursor: pointer;
+      border: none;
+      transition: all 0.2s;
     }
-    .btn-save {
-      padding: 8px 14px;
-      border-radius: 10px;
-      background: #fff;
-      border: none;
-      color: #000;
-      font-weight: bold;
-      cursor: pointer;
+    .modal-btn-cancel {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+    }
+    .modal-btn-save {
+      background: #ffffff;
+      color: #000000;
+      font-weight: 700;
+    }
+    .modal-btn-delete {
+      background: #ff453a;
+      color: #ffffff;
+      font-weight: 700;
     }
   </style>
 </head>
@@ -350,7 +360,7 @@
         <button class="toggle-btn" id="w1-btn">○ Mark as Done</button>
       </section>
 
-      <!-- Widget 2: 30 Days Balls Only -->
+      <!-- Widget 2: 30 Balls Only -->
       <section class="widget-card">
         <div class="widget-header">
           <div class="widget-title-area">
@@ -417,14 +427,37 @@
 
   </main>
 
-  <!-- Modal -->
-  <div class="modal-backdrop" id="modal-backdrop">
-    <div class="modal-content">
-      <h3>New Habit</h3>
-      <input type="text" id="input-new" placeholder="e.g. Reading, Gym, Coding" maxlength="24" />
+  <!-- Add Modal -->
+  <div class="modal-backdrop" id="modal-add">
+    <div class="modal-box">
+      <div class="modal-title">New Habit</div>
+      <input class="modal-input" type="text" id="input-new" placeholder="e.g. Reading, Gym, Coding" maxlength="24" />
       <div class="modal-actions">
-        <button class="btn-cancel" id="btn-cancel">Cancel</button>
-        <button class="btn-save" id="btn-save">Add</button>
+        <button class="modal-btn modal-btn-cancel" id="btn-cancel-add">Cancel</button>
+        <button class="modal-btn modal-btn-save" id="btn-save-add">Add</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Modal -->
+  <div class="modal-backdrop" id="modal-delete">
+    <div class="modal-box">
+      <div class="modal-title">Delete Habit</div>
+      <div class="modal-desc" id="delete-desc">Are you sure you want to delete this habit?</div>
+      <div class="modal-actions">
+        <button class="modal-btn modal-btn-cancel" id="btn-cancel-delete">Cancel</button>
+        <button class="modal-btn modal-btn-delete" id="btn-confirm-delete">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notice Modal -->
+  <div class="modal-backdrop" id="modal-notice">
+    <div class="modal-box">
+      <div class="modal-title">Notice</div>
+      <div class="modal-desc" id="notice-desc">You must keep at least one habit.</div>
+      <div class="modal-actions">
+        <button class="modal-btn modal-btn-save" id="btn-close-notice">Got it</button>
       </div>
     </div>
   </div>
@@ -584,7 +617,7 @@
       for (let day = 1; day <= totalDays; day++) {
         const ball = document.createElement('div');
         ball.className = 'year-ball';
-        if (day <= doy) ball.classList.add('passed'); // All passed days are WHITE
+        if (day <= doy) ball.classList.add('passed');
         if (day === doy) ball.classList.add('today');
         yearGrid.appendChild(ball);
       }
@@ -600,35 +633,50 @@
       render();
     };
 
-    const modal = document.getElementById('modal-backdrop');
+    // Modals
+    const modalAdd = document.getElementById('modal-add');
+    const modalDelete = document.getElementById('modal-delete');
+    const modalNotice = document.getElementById('modal-notice');
     const inp = document.getElementById('input-new');
+
     document.getElementById('btn-add').onclick = () => {
       inp.value = '';
-      modal.classList.add('open');
+      modalAdd.classList.add('open');
       setTimeout(() => inp.focus(), 50);
     };
-    document.getElementById('btn-cancel').onclick = () => modal.classList.remove('open');
-    document.getElementById('btn-save').onclick = () => {
+    document.getElementById('btn-cancel-add').onclick = () => modalAdd.classList.remove('open');
+    document.getElementById('btn-save-add').onclick = () => {
       const val = inp.value.trim();
       if (!val) return;
       const id = val.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now().toString(36);
       state.hobbies.push({ id, name: val, history: {} });
       state.selectedHobbyId = id;
       saveState(state);
-      modal.classList.remove('open');
+      modalAdd.classList.remove('open');
       render();
     };
 
     document.getElementById('w2-delete').onclick = () => {
-      if (state.hobbies.length <= 1) return alert('Keep at least 1 habit.');
-      const h = getHobby();
-      if (confirm(`Delete "${h.name}"?`)) {
-        state.hobbies = state.hobbies.filter(x => x.id !== h.id);
-        state.selectedHobbyId = state.hobbies[0].id;
-        saveState(state);
-        render();
+      if (state.hobbies.length <= 1) {
+        modalNotice.classList.add('open');
+        return;
       }
+      const h = getHobby();
+      document.getElementById('delete-desc').textContent = `Are you sure you want to delete "${h.name}"?`;
+      modalDelete.classList.add('open');
     };
+
+    document.getElementById('btn-cancel-delete').onclick = () => modalDelete.classList.remove('open');
+    document.getElementById('btn-confirm-delete').onclick = () => {
+      const h = getHobby();
+      state.hobbies = state.hobbies.filter(x => x.id !== h.id);
+      state.selectedHobbyId = state.hobbies[0].id;
+      saveState(state);
+      modalDelete.classList.remove('open');
+      render();
+    };
+
+    document.getElementById('btn-close-notice').onclick = () => modalNotice.classList.remove('open');
 
     render();
   </script>

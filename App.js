@@ -8,7 +8,6 @@ import {
   SafeAreaView,
   Modal,
   TextInput,
-  Alert,
   Dimensions,
   Platform,
 } from 'react-native';
@@ -44,7 +43,12 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('habits'); // 'habits' | 'year'
   const [hobbies, setHobbies] = useState(DEFAULT_HOBBIES);
   const [selectedHobbyId, setSelectedHobbyId] = useState('reading');
-  const [modalVisible, setModalVisible] = useState(false);
+
+  // Modals
+  const [addModalVisible, setAddModalVisible] = useState(false);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [errorModalVisible, setErrorModalVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [newHobbyName, setNewHobbyName] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
@@ -172,25 +176,22 @@ export default function App() {
     const updated = [...hobbies, { id: newId, name: trimmed, history: {} }];
     saveState(updated, newId);
     setNewHobbyName('');
-    setModalVisible(false);
+    setAddModalVisible(false);
   };
 
-  const handleDeleteHobby = (id) => {
+  const requestDeleteHobby = () => {
     if (hobbies.length <= 1) {
-      Alert.alert('Cannot delete', 'You need at least one habit in your list.');
+      setErrorMessage('You must have at least one habit.');
+      setErrorModalVisible(true);
       return;
     }
-    Alert.alert('Delete Habit', `Delete "${selectedHobby.name}"?`, [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: () => {
-          const filtered = hobbies.filter((h) => h.id !== id);
-          saveState(filtered, filtered[0].id);
-        },
-      },
-    ]);
+    setDeleteModalVisible(true);
+  };
+
+  const confirmDeleteHobby = () => {
+    const filtered = hobbies.filter((h) => h.id !== selectedHobby.id);
+    saveState(filtered, filtered[0].id);
+    setDeleteModalVisible(false);
   };
 
   const isTodayDone = !!(selectedHobby?.history && selectedHobby.history[todayKey]);
@@ -266,7 +267,7 @@ export default function App() {
               </ScrollView>
               <TouchableOpacity
                 style={styles.addBtnSmall}
-                onPress={() => setModalVisible(true)}
+                onPress={() => setAddModalVisible(true)}
                 activeOpacity={0.7}
               >
                 <Text style={styles.addBtnSmallText}>+</Text>
@@ -316,7 +317,7 @@ export default function App() {
                 </View>
               </View>
 
-              {/* 30 Balls Grid: 10 columns x 3 rows (clean, small balls, no numbers) */}
+              {/* 30 Balls Grid */}
               <View style={styles.grid30Balls}>
                 {past30Days.map((d) => (
                   <TouchableOpacity
@@ -338,7 +339,7 @@ export default function App() {
 
               <View style={styles.widgetFooter}>
                 <Text style={styles.footerText}>Tap any ball to toggle</Text>
-                <TouchableOpacity onPress={() => handleDeleteHobby(selectedHobby.id)}>
+                <TouchableOpacity onPress={requestDeleteHobby} activeOpacity={0.7}>
                   <Text style={styles.deleteText}>Delete habit</Text>
                 </TouchableOpacity>
               </View>
@@ -413,12 +414,16 @@ export default function App() {
         )}
       </ScrollView>
 
-      {/* Add Habit Modal */}
+      {/* ========================================================= */}
+      {/* UNIFIED MODALS (All matching the dark card aesthetic)     */}
+      {/* ========================================================= */}
+
+      {/* 1. Add Habit Modal */}
       <Modal
-        visible={modalVisible}
+        visible={addModalVisible}
         transparent
         animationType="fade"
-        onRequestClose={() => setModalVisible(false)}
+        onRequestClose={() => setAddModalVisible(false)}
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalBox}>
@@ -437,13 +442,75 @@ export default function App() {
                 style={styles.modalBtnCancel}
                 onPress={() => {
                   setNewHobbyName('');
-                  setModalVisible(false);
+                  setAddModalVisible(false);
                 }}
+                activeOpacity={0.7}
               >
                 <Text style={styles.modalBtnCancelText}>Cancel</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.modalBtnSave} onPress={handleAddHobby}>
+              <TouchableOpacity
+                style={styles.modalBtnSave}
+                onPress={handleAddHobby}
+                activeOpacity={0.7}
+              >
                 <Text style={styles.modalBtnSaveText}>Add</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* 2. Custom Delete Habit Modal (Unified Style) */}
+      <Modal
+        visible={deleteModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setDeleteModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalBox}>
+            <Text style={styles.modalTitle}>Delete Habit</Text>
+            <Text style={styles.modalDescription}>
+              Are you sure you want to delete "{selectedHobby.name}"?
+            </Text>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={styles.modalBtnCancel}
+                onPress={() => setDeleteModalVisible(false)}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.modalBtnCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.modalBtnDelete}
+                onPress={confirmDeleteHobby}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.modalBtnDeleteText}>Delete</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* 3. Custom Notice / Error Modal (Unified Style) */}
+      <Modal
+        visible={errorModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setErrorModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalBox}>
+            <Text style={styles.modalTitle}>Notice</Text>
+            <Text style={styles.modalDescription}>{errorMessage}</Text>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={styles.modalBtnSave}
+                onPress={() => setErrorModalVisible(false)}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.modalBtnSaveText}>Got it</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -455,7 +522,6 @@ export default function App() {
 
 const windowWidth = Dimensions.get('window').width;
 const cardWidth = Math.min(windowWidth - 32, 380);
-// Smaller dots matching image.png exactly
 const dotGap = 4;
 const dotSize = Math.floor((cardWidth - 44 - 18 * dotGap) / 19);
 
@@ -653,7 +719,7 @@ const styles = StyleSheet.create({
     borderColor: '#0a84ff',
   },
 
-  /* Widget 3: Full Year Dot Grid (Smaller balls, passed days are solid white) */
+  /* Widget 3: Full Year Dot Grid */
   yearGridWrapper: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -670,7 +736,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.18)',
   },
   yearBallPassed: {
-    backgroundColor: '#ffffff', // Solid white for passed days
+    backgroundColor: '#ffffff',
   },
   yearBallCurrent: {
     backgroundColor: '#ffffff',
@@ -699,6 +765,7 @@ const styles = StyleSheet.create({
   deleteText: {
     fontSize: 11,
     color: '#ff453a',
+    fontWeight: '500',
   },
   cardCaption: {
     fontSize: 11,
@@ -707,7 +774,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
 
-  /* Modal */
+  /* Unified Modals Styling */
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.75)',
@@ -719,35 +786,48 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 320,
     backgroundColor: '#1c1c1e',
-    borderRadius: 20,
-    padding: 20,
+    borderRadius: 22,
+    padding: 22,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.1)',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.6,
+    shadowRadius: 24,
+    elevation: 10,
   },
   modalTitle: {
-    fontSize: 17,
+    fontSize: 18,
     fontWeight: '700',
     color: '#ffffff',
-    marginBottom: 12,
+    marginBottom: 8,
+  },
+  modalDescription: {
+    fontSize: 14,
+    color: '#8e8e93',
+    lineHeight: 20,
+    marginBottom: 20,
   },
   modalInput: {
     backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 11,
     color: '#ffffff',
     fontSize: 14,
-    marginBottom: 16,
+    marginVertical: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   modalButtons: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    gap: 8,
+    gap: 10,
   },
   modalBtnCancel: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 9,
+    borderRadius: 12,
     backgroundColor: 'rgba(255, 255, 255, 0.08)',
   },
   modalBtnCancelText: {
@@ -756,13 +836,24 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   modalBtnSave: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 10,
+    paddingHorizontal: 18,
+    paddingVertical: 9,
+    borderRadius: 12,
     backgroundColor: '#ffffff',
   },
   modalBtnSaveText: {
     color: '#000000',
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  modalBtnDelete: {
+    paddingHorizontal: 18,
+    paddingVertical: 9,
+    borderRadius: 12,
+    backgroundColor: '#ff453a',
+  },
+  modalBtnDeleteText: {
+    color: '#ffffff',
     fontSize: 13,
     fontWeight: '700',
   },
