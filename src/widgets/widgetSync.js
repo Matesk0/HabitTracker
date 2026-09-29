@@ -1,6 +1,5 @@
 import React from 'react';
 import { Platform } from 'react-native';
-import { requestWidgetUpdate } from 'react-native-android-widget';
 import {
   getDateKey,
   getYearMetrics,
@@ -13,19 +12,22 @@ import { YearProgressWidget } from './YearProgressWidget';
 export function syncActiveWidgets(hobbies = [], selectedHobbyId, widgetHabitMap = {}) {
   if (Platform.OS !== 'android') return;
 
-  const today = new Date();
-  const todayKey = getDateKey(today);
-  const yearMetrics = getYearMetrics(today);
-
-  const resolveHabit = (widgetId) => {
-    const habitId = widgetHabitMap[widgetId] || selectedHobbyId;
-    return (
-      hobbies.find((h) => h.id === habitId) ||
-      hobbies[0] || { id: 'default', name: 'Habit', history: {} }
-    );
-  };
-
   try {
+    const { requestWidgetUpdate } = require('react-native-android-widget');
+    if (typeof requestWidgetUpdate !== 'function') return;
+
+    const today = new Date();
+    const todayKey = getDateKey(today);
+    const yearMetrics = getYearMetrics(today);
+
+    const resolveHabit = (widgetId) => {
+      const habitId = widgetHabitMap[widgetId] || selectedHobbyId;
+      return (
+        hobbies.find((h) => h.id === habitId) ||
+        hobbies[0] || { id: 'default', name: 'Habit', history: {} }
+      );
+    };
+
     requestWidgetUpdate({
       widgetName: 'HabitCheckInWidget',
       renderWidget: (widgetInfo) => {
@@ -74,6 +76,6 @@ export function syncActiveWidgets(hobbies = [], selectedHobbyId, widgetHabitMap 
       ),
     }).catch(() => {});
   } catch (e) {
-    console.warn('Widget sync error:', e);
+    // Gracefully handle Expo Go where native widgets are not bundled
   }
 }

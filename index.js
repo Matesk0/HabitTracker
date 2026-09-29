@@ -1,13 +1,21 @@
 import { registerRootComponent } from 'expo';
-import { registerWidgetTaskHandler } from 'react-native-android-widget';
+import { Platform } from 'react-native';
 
 import App from './App';
-import { widgetTaskHandler } from './src/widgets/widgetTaskHandler';
 
-// Register background handler for home screen widgets
-registerWidgetTaskHandler(widgetTaskHandler);
+// Safely register background widget handler for Android builds (gracefully skipped in Expo Go)
+if (Platform.OS === 'android') {
+  try {
+    const { registerWidgetTaskHandler } = require('react-native-android-widget');
+    const { widgetTaskHandler } = require('./src/widgets/widgetTaskHandler');
+    if (typeof registerWidgetTaskHandler === 'function') {
+      registerWidgetTaskHandler(widgetTaskHandler);
+    }
+  } catch (e) {
+    // In Expo Go or non-widget environments, widget registration is safely skipped
+  }
+}
 
 // registerRootComponent calls AppRegistry.registerComponent('main', () => App);
-// It also ensures that whether you load the app in Expo Go or in a native build,
-// the environment is set up appropriately
+// It ensures that loading the app in Expo Go, development build, or production works seamlessly
 registerRootComponent(App);

@@ -1,10 +1,25 @@
-# Habit & Day Tracker
+# Habit & Day Tracker (Expo Mobile App)
 
 A minimalist iOS/Android-widget-styled mobile habit tracker and year progress app built with React Native and Expo.
 
-## 📲 Instant Mobile Download / Web App (PWA)
+## 🚀 Run & Install on Mobile via QR Code (Expo Go)
 
-Scan the QR code in the app or open the link below directly on your mobile browser (Safari on iOS or Chrome on Android) and tap **"Add to Home Screen"**:
+1. Make sure you have the **Expo Go** app installed on your phone ([Google Play](https://play.google.com/store/apps/details?id=host.exp.exponent) or [App Store](https://apps.apple.com/app/expo-go/id982107779)).
+2. Start the Expo development server:
+   ```bash
+   npx expo start
+   ```
+3. **Scan the QR code** printed in your terminal:
+   - **Android**: Scan with the Expo Go app.
+   - **iOS**: Scan with the default Camera app.
+
+The app will instantly open and run on your device!
+
+---
+
+## 📲 Instant Web App / PWA Install (No App Store Needed)
+
+You can also open the live web version directly in your mobile browser and select **"Add to Home Screen"**:
 
 👉 **[https://matesk0.github.io/HabitTracker/](https://matesk0.github.io/HabitTracker/)**
 
@@ -24,19 +39,19 @@ Scan the QR code in the app or open the link below directly on your mobile brows
 
 ---
 
-## 📱 Home Screen Widgets (Android)
+## 📱 Android Home Screen Widgets
 
-1. Build or download the native APK:
+1. For native home screen widgets, build the preview APK:
    ```bash
    eas build -p android --profile preview
    ```
 2. Long-press on your home screen and select **Widgets** → **HabitTracker**:
-   - **Habit 30-Day Matrix**: Interactive 30-day dot matrix with background tap-to-complete (no app launch required).
-   - **Habit Checkmark Dot**: Ultra-compact dot widget with background tap-to-complete.
-   - **Year Progress Matrix**: Date, year completion percentage, and 365-day dot grid.
+   - **Habit 30-Day Matrix**: Interactive 30-day dot matrix with background tap-to-complete.
+   - **Habit Checkmark Dot**: Compact dot widget with background tap-to-complete.
+   - **Year Progress Matrix**: Date, year percentage, and 365-day dot grid.
 
 ---
 
-## 🔄 Automatic Updates via EAS & GitHub Pages
+## 🔄 Automatic OTA Updates via EAS
 
-- Pushing to `main` automatically deploys the web PWA to GitHub Pages and triggers over-the-air EAS updates for installed native builds.
+Pushing changes to `main` automatically publishes JavaScript updates over-the-air via EAS Update and deploys the web PWA to GitHub Pages.
