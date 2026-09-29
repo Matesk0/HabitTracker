@@ -35,7 +35,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 24px 16px;
+      padding: 24px 16px 60px;
       -webkit-font-smoothing: antialiased;
     }
 
@@ -139,19 +139,42 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
 
     .widget-title-area .title-big {
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 700;
       letter-spacing: -0.4px;
     }
 
-    .widget-title-area .subtitle {
-      font-size: 13px;
+    .badge-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .widget-badge {
+      padding: 3px 9px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.08);
       color: var(--text-muted);
-      margin-top: 2px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      cursor: pointer;
+    }
+
+    .widget-badge.active {
+      background: rgba(10, 132, 255, 0.18);
+      border-color: #0a84ff;
+      color: #5ac8fa;
+    }
+
+    .streak-label {
+      font-size: 12px;
+      color: var(--text-muted);
     }
 
     .widget-stat-right {
@@ -159,28 +182,29 @@
     }
 
     .widget-stat-right .stat-number {
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 700;
       line-height: 1.1;
     }
 
     .widget-stat-right .stat-label {
-      font-size: 12px;
+      font-size: 11px;
       color: var(--text-muted);
     }
 
-    /* Widget 1 Button */
+    /* Button */
     .toggle-btn {
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 16px;
-      padding: 14px;
+      padding: 12px;
       color: #ffffff;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 700;
       cursor: pointer;
       text-align: center;
       transition: all 0.25s;
+      margin-bottom: 12px;
     }
 
     .toggle-btn.done {
@@ -189,13 +213,13 @@
       border-color: #ffffff;
     }
 
-    /* Widget 2: 30 Balls (No numbers) */
+    /* 30 Balls */
     .grid-30-balls {
       display: flex;
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 10px;
       justify-content: center;
-      padding: 14px 0;
+      padding: 8px 0;
     }
 
     .ball-30 {
@@ -216,7 +240,7 @@
       border: 2px solid #0a84ff;
     }
 
-    /* Widget 3: Year Dot Grid (Passed days solid white) */
+    /* Year Dot Grid */
     .year-grid-container {
       display: flex;
       justify-content: center;
@@ -226,13 +250,13 @@
 
     .year-grid {
       display: grid;
-      grid-template-columns: repeat(19, 9px);
+      grid-template-columns: repeat(19, 10px);
       gap: 4px;
     }
 
     .year-ball {
-      width: 9px;
-      height: 9px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
       background: var(--dot-empty);
     }
@@ -264,11 +288,24 @@
       font-weight: 500;
     }
 
-    .card-caption {
-      font-size: 11px;
-      color: var(--text-muted);
-      text-align: center;
-      margin-top: 12px;
+    /* Bottom Floating Action / QR Code trigger */
+    .qr-banner {
+      position: fixed;
+      bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(28, 28, 30, 0.95);
+      backdrop-filter: blur(12px);
+      padding: 8px 18px;
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      color: #ffffff;
+      z-index: 50;
     }
 
     /* Unified Modals */
@@ -292,6 +329,7 @@
       max-width: 320px;
       border: 1px solid rgba(255, 255, 255, 0.1);
       box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+      text-align: left;
     }
 
     .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
@@ -332,6 +370,15 @@
       color: #ffffff;
       font-weight: 700;
     }
+    .qr-img {
+      width: 200px;
+      height: 200px;
+      margin: 12px auto;
+      display: block;
+      border-radius: 12px;
+      background: #ffffff;
+      padding: 8px;
+    }
   </style>
 </head>
 <body>
@@ -351,70 +398,21 @@
         <button class="btn-add-small" id="btn-add">+</button>
       </div>
 
-      <!-- Widget 1: Quick Check -->
-      <section class="widget-card">
-        <div class="widget-header">
-          <div class="widget-title-area">
-            <div class="title-big" id="w1-title">Reading</div>
-            <div class="subtitle" id="w1-sub">Today's status</div>
-          </div>
-          <div class="widget-stat-right">
-            <div class="stat-number" id="w1-streak">0</div>
-            <div class="stat-label">streak</div>
-          </div>
-        </div>
-        <button class="toggle-btn" id="w1-btn">○ Mark as Done</button>
-      </section>
-
-      <!-- Widget 2: 30 Balls Only -->
-      <section class="widget-card">
-        <div class="widget-header">
-          <div class="widget-title-area">
-            <div class="title-big" id="w2-title">Reading</div>
-            <div class="subtitle" id="w2-sub">Last 30 Days • 0%</div>
-          </div>
-          <div class="widget-stat-right">
-            <div class="stat-number" id="w2-stat">0</div>
-            <div class="stat-label">of 30 done</div>
-          </div>
-        </div>
-
-        <div class="grid-30-balls" id="w2-grid"></div>
-
-        <div class="widget-footer">
-          <span>Tap any ball to toggle</span>
-          <span class="delete-link" id="w2-delete">Delete habit</span>
-        </div>
-      </section>
+      <!-- Container for all habit cards rendered simultaneously -->
+      <div id="habits-list" style="display: flex; flex-direction: column; gap: 14px;"></div>
     </div>
 
-    <!-- TAB 2: YEAR PROGRESS -->
+    <!-- TAB 2: YEAR PROGRESS (Minimalist Dot Matrix) -->
     <div id="section-year" style="display: none; flex-direction: column; gap: 14px;">
-      <!-- Small Year Card -->
       <section class="widget-card">
         <div class="widget-header">
           <div class="widget-title-area">
-            <div class="title-big" id="w3-small-year">2026</div>
-            <div class="subtitle" id="w3-small-sub">Day 18 of 365</div>
+            <div class="title-big" id="w3-date">Sep 29</div>
+            <div class="subtitle" id="w3-year">2026</div>
           </div>
           <div class="widget-stat-right">
-            <div class="stat-number" id="w3-small-days">348</div>
-            <div class="stat-label">days left</div>
-          </div>
-        </div>
-        <div class="card-caption">Dale</div>
-      </section>
-
-      <!-- Full Year Matrix Card -->
-      <section class="widget-card">
-        <div class="widget-header">
-          <div class="widget-title-area">
-            <div class="title-big" id="w3-year">2026</div>
-            <div class="subtitle" id="w3-sub">Day 18 • 4%</div>
-          </div>
-          <div class="widget-stat-right">
-            <div class="stat-number" id="w3-days">348</div>
-            <div class="stat-label">days left</div>
+            <div class="stat-number" id="w3-pct">75%</div>
+            <div class="stat-label" id="w3-doy">Day 272/365</div>
           </div>
         </div>
 
@@ -424,14 +422,34 @@
 
         <div class="widget-footer">
           <span>Jan 1</span>
-          <span style="color:#fff;font-weight:600" id="w3-today">Day 18</span>
+          <span style="color:#fff;font-weight:600" id="w3-today">Day 272</span>
           <span>Dec 31</span>
         </div>
-        <div class="card-caption">Dale</div>
       </section>
     </div>
 
   </main>
+
+  <!-- Floating Mobile QR Button -->
+  <div class="qr-banner" id="btn-qr">
+    <span>📲 Mobile Install QR</span>
+  </div>
+
+  <!-- QR Code Modal -->
+  <div class="modal-backdrop" id="modal-qr">
+    <div class="modal-box" style="text-align: center;">
+      <div class="modal-title">Install on Mobile</div>
+      <div class="modal-desc">Scan with your phone camera to open and install to home screen.</div>
+      <img
+        class="qr-img"
+        src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=https%3A%2F%2Fmatesk0.github.io%2FHabitTracker%2F"
+        alt="QR Code"
+      />
+      <div class="modal-actions" style="justify-content: center; margin-top: 12px;">
+        <button class="modal-btn modal-btn-save" id="btn-close-qr">Done</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Add Modal -->
   <div class="modal-backdrop" id="modal-add">
@@ -473,6 +491,7 @@
     const defaultState = {
       activeTab: 'habits',
       selectedHobbyId: 'reading',
+      viewFilter: 'all',
       hobbies: [
         { id: 'reading', name: 'Reading', history: {} },
         { id: 'workout', name: 'Workout', history: {} },
@@ -493,7 +512,9 @@
     }
 
     let state = loadState();
+    let deleteTargetId = null;
 
+    const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     function isLeap(y) { return (y % 4 === 0 && y % 100 !== 0) || (y % 400 === 0); }
     function getDayOfYear(d) {
       const s = new Date(d.getFullYear(), 0, 0);
@@ -503,9 +524,8 @@
     function getKey(d) {
       return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     }
-
-    function getHobby() {
-      return state.hobbies.find(h => h.id === state.selectedHobbyId) || state.hobbies[0];
+    function formatDate(d) {
+      return `${MONTHS[d.getMonth()]} ${d.getDate()}`;
     }
 
     function getStreak(hobby, todayKey) {
@@ -547,75 +567,139 @@
       const yr = now.getFullYear();
       const totalDays = isLeap(yr) ? 366 : 365;
       const doy = getDayOfYear(now);
-      const left = totalDays - doy;
       const pct = Math.round((doy / totalDays) * 100);
       const todayKey = getKey(now);
 
-      // Pills
+      // Pills: "All" + each habit
       const pillsCont = document.getElementById('pills-container');
       pillsCont.innerHTML = '';
+
+      const allPill = document.createElement('button');
+      allPill.className = `pill-btn ${(!state.viewFilter || state.viewFilter === 'all') ? 'active' : ''}`;
+      allPill.textContent = `All (${state.hobbies.length})`;
+      allPill.onclick = () => {
+        state.viewFilter = 'all';
+        saveState(state);
+        render();
+      };
+      pillsCont.appendChild(allPill);
+
       state.hobbies.forEach(h => {
         const b = document.createElement('button');
-        b.className = `pill-btn ${h.id === state.selectedHobbyId ? 'active' : ''}`;
+        b.className = `pill-btn ${state.viewFilter === h.id ? 'active' : ''}`;
         b.textContent = h.name;
         b.onclick = () => {
-          state.selectedHobbyId = h.id;
+          state.viewFilter = h.id;
           saveState(state);
           render();
         };
         pillsCont.appendChild(b);
       });
 
-      const hobby = getHobby();
-      if (!hobby) return;
+      // Render Habits (all or filtered)
+      const habitsList = document.getElementById('habits-list');
+      habitsList.innerHTML = '';
 
-      const doneToday = !!hobby.history[todayKey];
-      const streak = getStreak(hobby, todayKey);
+      const filtered = (!state.viewFilter || state.viewFilter === 'all')
+        ? state.hobbies
+        : state.hobbies.filter(h => h.id === state.viewFilter);
 
-      // Widget 1
-      document.getElementById('w1-title').textContent = hobby.name;
-      document.getElementById('w1-sub').textContent = doneToday ? 'Completed today' : 'Not done yet';
-      document.getElementById('w1-streak').textContent = streak;
-      const w1Btn = document.getElementById('w1-btn');
-      w1Btn.className = `toggle-btn ${doneToday ? 'done' : ''}`;
-      w1Btn.textContent = doneToday ? '✓ Done' : '○ Mark as Done';
+      filtered.forEach(hobby => {
+        const doneToday = !!hobby.history[todayKey];
+        const streak = getStreak(hobby, todayKey);
+        const isWidgetActive = (state.selectedHobbyId === hobby.id);
 
-      // Widget 2: 30 Balls Only
-      document.getElementById('w2-title').textContent = hobby.name;
-      const w2Grid = document.getElementById('w2-grid');
-      w2Grid.innerHTML = '';
-      let done30 = 0;
+        let done30 = 0;
+        const past30 = [];
+        for (let i = 29; i >= 0; i--) {
+          const d = new Date();
+          d.setDate(now.getDate() - i);
+          const k = getKey(d);
+          const isDone = !!hobby.history[k];
+          if (isDone) done30++;
+          past30.push({ key: k, isDone, isToday: i === 0 });
+        }
+        const pct30 = Math.round((done30 / 30) * 100);
 
-      for (let i = 29; i >= 0; i--) {
-        const d = new Date();
-        d.setDate(now.getDate() - i);
-        const k = getKey(d);
-        const isDone = !!hobby.history[k];
-        const isToday = i === 0;
-        if (isDone) done30++;
+        const card = document.createElement('section');
+        card.className = 'widget-card';
 
-        const ball = document.createElement('div');
-        ball.className = `ball-30 ${isDone ? 'done' : ''} ${isToday ? 'today' : ''}`;
-        ball.onclick = () => {
-          hobby.history[k] = !hobby.history[k];
-          if (!hobby.history[k]) delete hobby.history[k];
+        card.innerHTML = `
+          <div class="widget-header">
+            <div class="widget-title-area">
+              <div class="title-big">${hobby.name}</div>
+              <div class="badge-row">
+                <button class="widget-badge ${isWidgetActive ? 'active' : ''}" data-widget-id="${hobby.id}">
+                  ${isWidgetActive ? '● Active Widget' : '○ Set for Widget'}
+                </button>
+                <span class="streak-label">${streak}d streak</span>
+              </div>
+            </div>
+            <div class="widget-stat-right">
+              <div class="stat-number">${pct30}%</div>
+              <div class="stat-label">${done30}/30 done</div>
+            </div>
+          </div>
+
+          <button class="toggle-btn ${doneToday ? 'done' : ''}" data-toggle-today="${hobby.id}">
+            ${doneToday ? '✓ Completed Today' : '○ Mark as Done'}
+          </button>
+
+          <div class="grid-30-balls" id="grid-${hobby.id}"></div>
+
+          <div class="widget-footer">
+            <span>Tap any ball to toggle</span>
+            ${state.hobbies.length > 1 ? `<span class="delete-link" data-delete-id="${hobby.id}">Delete</span>` : ''}
+          </div>
+        `;
+
+        habitsList.appendChild(card);
+
+        // Bind widget badge toggle
+        card.querySelector(`[data-widget-id="${hobby.id}"]`).onclick = () => {
+          state.selectedHobbyId = hobby.id;
           saveState(state);
           render();
         };
-        w2Grid.appendChild(ball);
-      }
 
-      document.getElementById('w2-stat').textContent = done30;
-      document.getElementById('w2-sub').textContent = `Last 30 Days • ${Math.round((done30/30)*100)}%`;
+        // Bind today toggle
+        card.querySelector(`[data-toggle-today="${hobby.id}"]`).onclick = () => {
+          hobby.history[todayKey] = !hobby.history[todayKey];
+          if (!hobby.history[todayKey]) delete hobby.history[todayKey];
+          saveState(state);
+          render();
+        };
 
-      // Widget 3: Year
-      document.getElementById('w3-small-year').textContent = yr;
-      document.getElementById('w3-small-sub').textContent = `Day ${doy} of ${totalDays}`;
-      document.getElementById('w3-small-days').textContent = left;
+        // Bind 30 balls
+        const grid = card.querySelector(`#grid-${hobby.id}`);
+        past30.forEach(dot => {
+          const ball = document.createElement('div');
+          ball.className = `ball-30 ${dot.isDone ? 'done' : ''} ${dot.isToday ? 'today' : ''}`;
+          ball.onclick = () => {
+            hobby.history[dot.key] = !hobby.history[dot.key];
+            if (!hobby.history[dot.key]) delete hobby.history[dot.key];
+            saveState(state);
+            render();
+          };
+          grid.appendChild(ball);
+        });
 
+        // Bind delete
+        const delBtn = card.querySelector(`[data-delete-id="${hobby.id}"]`);
+        if (delBtn) {
+          delBtn.onclick = () => {
+            deleteTargetId = hobby.id;
+            document.getElementById('delete-desc').textContent = `Are you sure you want to delete "${hobby.name}"?`;
+            modalDelete.classList.add('open');
+          };
+        }
+      });
+
+      // TAB 2: Year Progress
+      document.getElementById('w3-date').textContent = formatDate(now);
       document.getElementById('w3-year').textContent = yr;
-      document.getElementById('w3-sub').textContent = `Day ${doy} • ${pct}%`;
-      document.getElementById('w3-days').textContent = left;
+      document.getElementById('w3-pct').textContent = `${pct}%`;
+      document.getElementById('w3-doy').textContent = `Day ${doy}/${totalDays}`;
       document.getElementById('w3-today').textContent = `Day ${doy}`;
 
       const yearGrid = document.getElementById('year-grid');
@@ -629,21 +713,15 @@
       }
     }
 
-    document.getElementById('w1-btn').onclick = () => {
-      const h = getHobby();
-      if (!h) return;
-      const k = getKey(new Date());
-      h.history[k] = !h.history[k];
-      if (!h.history[k]) delete h.history[k];
-      saveState(state);
-      render();
-    };
-
     // Modals
     const modalAdd = document.getElementById('modal-add');
     const modalDelete = document.getElementById('modal-delete');
     const modalNotice = document.getElementById('modal-notice');
+    const modalQr = document.getElementById('modal-qr');
     const inp = document.getElementById('input-new');
+
+    document.getElementById('btn-qr').onclick = () => modalQr.classList.add('open');
+    document.getElementById('btn-close-qr').onclick = () => modalQr.classList.remove('open');
 
     document.getElementById('btn-add').onclick = () => {
       inp.value = '';
@@ -657,27 +735,28 @@
       const id = val.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now().toString(36);
       state.hobbies.push({ id, name: val, history: {} });
       state.selectedHobbyId = id;
+      state.viewFilter = 'all';
       saveState(state);
       modalAdd.classList.remove('open');
       render();
     };
 
-    document.getElementById('w2-delete').onclick = () => {
-      if (state.hobbies.length <= 1) {
-        modalNotice.classList.add('open');
-        return;
-      }
-      const h = getHobby();
-      document.getElementById('delete-desc').textContent = `Are you sure you want to delete "${h.name}"?`;
-      modalDelete.classList.add('open');
+    document.getElementById('btn-cancel-delete').onclick = () => {
+      deleteTargetId = null;
+      modalDelete.classList.remove('open');
     };
 
-    document.getElementById('btn-cancel-delete').onclick = () => modalDelete.classList.remove('open');
     document.getElementById('btn-confirm-delete').onclick = () => {
-      const h = getHobby();
-      state.hobbies = state.hobbies.filter(x => x.id !== h.id);
-      state.selectedHobbyId = state.hobbies[0].id;
+      if (!deleteTargetId) return;
+      state.hobbies = state.hobbies.filter(x => x.id !== deleteTargetId);
+      if (state.selectedHobbyId === deleteTargetId) {
+        state.selectedHobbyId = state.hobbies[0].id;
+      }
+      if (state.viewFilter === deleteTargetId) {
+        state.viewFilter = 'all';
+      }
       saveState(state);
+      deleteTargetId = null;
       modalDelete.classList.remove('open');
       render();
     };

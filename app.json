@@ -13,10 +13,51 @@
     "updates": {
       "enabled": true,
       "checkAutomatically": "ON_LOAD",
-      "fallbackToCacheTimeout": 0
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/de861f77-23c2-4b82-9739-2d84c9afa50c"
     },
     "plugins": [
-      "expo-updates"
+      "expo-updates",
+      [
+        "react-native-android-widget",
+        {
+          "widgets": [
+            {
+              "name": "HabitCheckInWidget",
+              "label": "Habit Checkmark",
+              "description": "Minimalist habit checkmark dot widget",
+              "minWidth": "80dp",
+              "minHeight": "80dp",
+              "targetCellWidth": 2,
+              "targetCellHeight": 2,
+              "previewImage": "./assets/icon.png",
+              "updatePeriodMillis": 1800000
+            },
+            {
+              "name": "YearProgressWidget",
+              "label": "Year Progress",
+              "description": "Minimalist year progress dot matrix",
+              "minWidth": "160dp",
+              "minHeight": "90dp",
+              "targetCellWidth": 3,
+              "targetCellHeight": 2,
+              "previewImage": "./assets/icon.png",
+              "updatePeriodMillis": 1800000
+            },
+            {
+              "name": "Habit30DayWidget",
+              "label": "Habit 30-Day Matrix",
+              "description": "30-day dot matrix habit tracker with tap-to-complete",
+              "minWidth": "160dp",
+              "minHeight": "90dp",
+              "targetCellWidth": 3,
+              "targetCellHeight": 2,
+              "previewImage": "./assets/icon.png",
+              "updatePeriodMillis": 1800000
+            }
+          ]
+        }
+      ]
     ],
     "ios": {
       "supportsTablet": true
@@ -27,10 +68,17 @@
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
-      }
+      },
+      "package": "com.matesk0.habittracker"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "de861f77-23c2-4b82-9739-2d84c9afa50c"
+      }
+    },
+    "owner": "matesk0"
   }
 }
