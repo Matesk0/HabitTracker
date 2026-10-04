@@ -4,6 +4,23 @@ A minimalist iOS/Android-widget-styled mobile habit tracker and year progress ap
 
 ---
 
+## 📲 Instant Mobile Download & Install (Scan from PC)
+
+Scan this QR code directly from your computer screen with your iPhone or Android camera to instantly open and install the app on your phone:
+
+<div align="center">
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=10&data=https%3A%2F%2Fmatesk0.github.io%2FHabitTracker%2F" width="240" height="240" alt="HabitTracker Mobile Install QR Code" />
+  <br/>
+  <sub>👉 Or open directly on mobile: <b><a href="https://matesk0.github.io/HabitTracker/">https://matesk0.github.io/HabitTracker/</a></b></sub>
+</div>
+
+### 📥 Mobile Installation Steps:
+- **iPhone (iOS)**: Scan with Camera → Open in Safari → Tap the **Share** button (box with arrow) → Tap **"Add to Home Screen"**.
+- **Android**: Scan with Camera → Open in Chrome → Tap **"Install App"** (or 3 dots menu → **"Add to Home Screen"**).
+- **Expo Go (Dev/Test)**: Run `npx expo start` in your terminal and scan the terminal QR code using Expo Go (Android) or Camera (iOS).
+
+---
+
 ## 📱 Features
 
 - **5 Native Android Home Screen Widgets**:
@@ -19,27 +36,6 @@ A minimalist iOS/Android-widget-styled mobile habit tracker and year progress ap
 - **Interactive Widgets Tab**: In-app live preview and widget habit assignment.
 - **Year Progress Tab**: Dynamic dot matrix tracking the current day and annual progress.
 - **Custom Habit Management**: Add, delete, and filter habits with persistent offline storage.
-
----
-
-## 🚀 Run & Install on Mobile via QR Code (Expo Go)
-
-1. Install **Expo Go** on your device ([Google Play](https://play.google.com/store/apps/details?id=host.exp.exponent) or [App Store](https://apps.apple.com/app/expo-go/id982107779)).
-2. Start the development server:
-   ```bash
-   npx expo start
-   ```
-3. **Scan the QR code**:
-   - **Android**: Scan with the Expo Go app.
-   - **iOS**: Scan with the Camera app.
-
----
-
-## 📲 Instant Web App / PWA Install
-
-Open the live web version directly on your device and tap **"Add to Home Screen"**:
-
-👉 **[https://matesk0.github.io/HabitTracker/](https://matesk0.github.io/HabitTracker/)**
 
 ---
 
