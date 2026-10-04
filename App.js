@@ -25,11 +25,12 @@ import {
 import { syncActiveWidgets } from './src/widgets/widgetSync';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('habits'); // 'habits' | 'year'
+  const [activeTab, setActiveTab] = useState('habits'); // 'habits' | 'widgets' | 'year'
+  const [viewMode, setViewMode] = useState('cards'); // 'cards' | 'wide' | 'circles'
   const [hobbies, setHobbies] = useState(DEFAULT_HOBBIES);
   const [selectedHobbyId, setSelectedHobbyId] = useState('reading');
   const [widgetHabitMap, setWidgetHabitMap] = useState({});
-  const [viewFilter, setViewFilter] = useState('all'); // 'all' or specific hobby ID
+  const [viewFilter, setViewFilter] = useState('all');
 
   // Modals
   const [addModalVisible, setAddModalVisible] = useState(false);
@@ -75,7 +76,7 @@ export default function App() {
     const activeId = updatedSelectedId || selectedHobbyId;
     if (updatedSelectedId) setSelectedHobbyId(updatedSelectedId);
     const activeMap = updatedMap !== undefined ? updatedMap : widgetHabitMap;
-    if (updatedMap !== undefined) setWidgetHabitMap(updatedMap);
+    if (updatedMap !== undefined) setWidgetHabitMap(activeMap);
 
     await saveHabitState(updatedHobbies, activeId, activeMap);
     syncActiveWidgets(updatedHobbies, activeId, activeMap);
@@ -150,6 +151,10 @@ export default function App() {
     return hobbies.filter((h) => h.id === viewFilter);
   }, [hobbies, viewFilter]);
 
+  const activeWidgetHabit = useMemo(() => {
+    return hobbies.find((h) => h.id === selectedHobbyId) || hobbies[0];
+  }, [hobbies, selectedHobbyId]);
+
   if (isLoading) {
     return (
       <SafeAreaView style={styles.container}>
@@ -177,12 +182,21 @@ export default function App() {
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
+          style={[styles.tabBtn, activeTab === 'widgets' && styles.tabBtnActive]}
+          onPress={() => setActiveTab('widgets')}
+          activeOpacity={0.7}
+        >
+          <Text style={[styles.tabBtnText, activeTab === 'widgets' && styles.tabBtnTextActive]}>
+            Widgets
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
           style={[styles.tabBtn, activeTab === 'year' && styles.tabBtnActive]}
           onPress={() => setActiveTab('year')}
           activeOpacity={0.7}
         >
           <Text style={[styles.tabBtnText, activeTab === 'year' && styles.tabBtnTextActive]}>
-            Year Progress
+            Year
           </Text>
         </TouchableOpacity>
       </View>
@@ -193,7 +207,38 @@ export default function App() {
       >
         {activeTab === 'habits' ? (
           <>
-            {/* Filter Pills: 'All Habits' + Individual Habits */}
+            {/* View Mode Selector: 30D Cards / Wide Pill / Small Circle */}
+            <View style={styles.viewModeRow}>
+              <TouchableOpacity
+                style={[styles.modeBtn, viewMode === 'cards' && styles.modeBtnActive]}
+                onPress={() => setViewMode('cards')}
+                activeOpacity={0.7}
+              >
+                <Text style={[styles.modeBtnText, viewMode === 'cards' && styles.modeBtnTextActive]}>
+                  30-Day Cards
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modeBtn, viewMode === 'wide' && styles.modeBtnActive]}
+                onPress={() => setViewMode('wide')}
+                activeOpacity={0.7}
+              >
+                <Text style={[styles.modeBtnText, viewMode === 'wide' && styles.modeBtnTextActive]}>
+                  Wide Pills
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modeBtn, viewMode === 'circles' && styles.modeBtnActive]}
+                onPress={() => setViewMode('circles')}
+                activeOpacity={0.7}
+              >
+                <Text style={[styles.modeBtnText, viewMode === 'circles' && styles.modeBtnTextActive]}>
+                  Circles
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Filter Pills */}
             <View style={styles.pillsRow}>
               <ScrollView
                 horizontal
@@ -236,105 +281,356 @@ export default function App() {
               </TouchableOpacity>
             </View>
 
-            {/* Display All Habits at the Same Time */}
-            {displayedHobbies.map((habit) => {
-              const streak = calculateStreak(habit.history, todayKey);
-              const past30 = getPast30Days(habit.history, today);
-              const past30DoneCount = past30.filter((d) => d.isDone).length;
-              const past30Percentage = Math.round((past30DoneCount / 30) * 100);
-              const isTodayDone = !!(habit.history && habit.history[todayKey]);
-              const isWidgetActive = selectedHobbyId === habit.id;
+            {/* MODE 1: 30-Day Cards */}
+            {viewMode === 'cards' &&
+              displayedHobbies.map((habit) => {
+                const streak = calculateStreak(habit.history, todayKey);
+                const past30 = getPast30Days(habit.history, today);
+                const past30DoneCount = past30.filter((d) => d.isDone).length;
+                const past30Percentage = Math.round((past30DoneCount / 30) * 100);
+                const isTodayDone = !!(habit.history && habit.history[todayKey]);
+                const isWidgetActive = selectedHobbyId === habit.id;
 
-              return (
-                <View key={habit.id} style={styles.widgetCard}>
-                  {/* Header: Name top left, % top right */}
-                  <View style={styles.widgetHeader}>
-                    <View style={{ flex: 1, marginRight: 10 }}>
-                      <Text style={styles.widgetBigTitle} numberOfLines={1}>
-                        {habit.name}
-                      </Text>
-                      <View style={styles.badgeRow}>
-                        <TouchableOpacity
-                          style={[styles.widgetBadge, isWidgetActive && styles.widgetBadgeActive]}
-                          onPress={() => setAsWidgetHabit(habit.id)}
-                          activeOpacity={0.7}
-                        >
-                          <Text
-                            style={[
-                              styles.widgetBadgeText,
-                              isWidgetActive && styles.widgetBadgeTextActive,
-                            ]}
+                return (
+                  <View key={habit.id} style={styles.widgetCard}>
+                    {/* Header */}
+                    <View style={styles.widgetHeader}>
+                      <View style={{ flex: 1, marginRight: 10 }}>
+                        <Text style={styles.widgetBigTitle} numberOfLines={1}>
+                          {habit.name}
+                        </Text>
+                        <View style={styles.badgeRow}>
+                          <TouchableOpacity
+                            style={[styles.widgetBadge, isWidgetActive && styles.widgetBadgeActive]}
+                            onPress={() => setAsWidgetHabit(habit.id)}
+                            activeOpacity={0.7}
                           >
-                            {isWidgetActive ? '● Active Widget' : '○ Set for Widget'}
-                          </Text>
-                        </TouchableOpacity>
-                        <Text style={styles.streakLabel}>{streak}d streak</Text>
+                            <Text
+                              style={[
+                                styles.widgetBadgeText,
+                                isWidgetActive && styles.widgetBadgeTextActive,
+                              ]}
+                            >
+                              {isWidgetActive ? '● Active Widget' : '○ Set for Widget'}
+                            </Text>
+                          </TouchableOpacity>
+                          <Text style={styles.streakLabel}>{streak}d streak</Text>
+                        </View>
+                      </View>
+
+                      <View style={styles.widgetHeaderRight}>
+                        <Text style={styles.widgetStatNumber}>{past30Percentage}%</Text>
+                        <Text style={styles.widgetStatLabel}>{past30DoneCount}/30</Text>
                       </View>
                     </View>
 
-                    <View style={styles.widgetHeaderRight}>
-                      <Text style={styles.widgetStatNumber}>{past30Percentage}%</Text>
-                      <Text style={styles.widgetStatLabel}>{past30DoneCount}/30</Text>
-                    </View>
-                  </View>
-
-                  {/* Today Quick Toggle Button */}
-                  <TouchableOpacity
-                    style={[styles.toggleButton, isTodayDone && styles.toggleButtonDone]}
-                    onPress={() => toggleHabitToday(habit.id)}
-                    activeOpacity={0.8}
-                  >
-                    <Text
-                      style={[
-                        styles.toggleButtonText,
-                        isTodayDone && styles.toggleButtonTextDone,
-                      ]}
+                    {/* Today Quick Toggle Button (Pill Aesthetic) */}
+                    <TouchableOpacity
+                      style={[styles.toggleButton, isTodayDone && styles.toggleButtonDone]}
+                      onPress={() => toggleHabitToday(habit.id)}
+                      activeOpacity={0.8}
                     >
-                      {isTodayDone ? '✓  Completed Today' : '○  Mark as Done'}
-                    </Text>
-                  </TouchableOpacity>
-
-                  {/* 30 Balls Grid */}
-                  <View style={styles.grid30Balls}>
-                    {past30.map((d) => (
-                      <TouchableOpacity
-                        key={d.key}
-                        onPress={() => toggleHabitDate(habit.id, d.key)}
-                        activeOpacity={0.6}
-                        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                      >
+                      <View style={styles.toggleInnerRow}>
                         <View
                           style={[
-                            styles.ball30,
-                            d.isDone && styles.ball30Done,
-                            d.isToday && styles.ball30Today,
+                            styles.toggleCircleIcon,
+                            isTodayDone && styles.toggleCircleIconDone,
                           ]}
-                        />
-                      </TouchableOpacity>
-                    ))}
-                  </View>
+                        >
+                          {isTodayDone && <View style={styles.toggleCircleInnerDot} />}
+                        </View>
+                        <Text
+                          style={[
+                            styles.toggleButtonText,
+                            isTodayDone && styles.toggleButtonTextDone,
+                          ]}
+                        >
+                          {isTodayDone ? 'Completed Today' : 'Mark as Done'}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
 
-                  <View style={styles.widgetFooter}>
-                    <Text style={styles.footerText}>Tap any ball to toggle</Text>
-                    {hobbies.length > 1 && (
-                      <TouchableOpacity
-                        onPress={() => requestDeleteHobby(habit)}
-                        activeOpacity={0.7}
+                    {/* 30 Balls Grid */}
+                    <View style={styles.grid30Balls}>
+                      {past30.map((d) => (
+                        <TouchableOpacity
+                          key={d.key}
+                          onPress={() => toggleHabitDate(habit.id, d.key)}
+                          activeOpacity={0.6}
+                          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                        >
+                          <View
+                            style={[
+                              styles.ball30,
+                              d.isDone && styles.ball30Done,
+                              d.isToday && styles.ball30Today,
+                            ]}
+                          />
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+
+                    <View style={styles.widgetFooter}>
+                      <Text style={styles.footerText}>Tap any ball to toggle</Text>
+                      {hobbies.length > 1 && (
+                        <TouchableOpacity
+                          onPress={() => requestDeleteHobby(habit)}
+                          activeOpacity={0.7}
+                        >
+                          <Text style={styles.deleteText}>Delete</Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                  </View>
+                );
+              })}
+
+            {/* MODE 2: Wide Pills (Matching wide-habit.png) */}
+            {viewMode === 'wide' && (
+              <View style={styles.wideListContainer}>
+                {displayedHobbies.map((habit) => {
+                  const streak = calculateStreak(habit.history, todayKey);
+                  const isTodayDone = !!(habit.history && habit.history[todayKey]);
+
+                  return (
+                    <TouchableOpacity
+                      key={habit.id}
+                      style={[styles.widePillCard, isTodayDone && styles.widePillCardDone]}
+                      onPress={() => toggleHabitToday(habit.id)}
+                      activeOpacity={0.8}
+                    >
+                      {/* Left Circular Checkbox (Concentric on done) */}
+                      <View
+                        style={[
+                          styles.wideCircleToggle,
+                          isTodayDone && styles.wideCircleToggleDone,
+                        ]}
                       >
-                        <Text style={styles.deleteText}>Delete</Text>
-                      </TouchableOpacity>
+                        {isTodayDone && <View style={styles.wideCircleInnerDot} />}
+                      </View>
+
+                      {/* Habit Name */}
+                      <Text style={styles.widePillTitle} numberOfLines={1}>
+                        {habit.name}
+                      </Text>
+
+                      {/* Right Streak / Delete */}
+                      <View style={styles.widePillRight}>
+                        {streak > 0 && (
+                          <View style={styles.streakBadgeSmall}>
+                            <Text style={styles.streakBadgeSmallText}>{streak}d</Text>
+                          </View>
+                        )}
+                        {hobbies.length > 1 && (
+                          <TouchableOpacity
+                            onPress={() => requestDeleteHobby(habit)}
+                            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                            style={{ marginLeft: 8 }}
+                          >
+                            <Text style={styles.deleteTextSmall}>✕</Text>
+                          </TouchableOpacity>
+                        )}
+                      </View>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            )}
+
+            {/* MODE 3: Small Circles (Matching small-habit.png) */}
+            {viewMode === 'circles' && (
+              <View style={styles.circlesGridContainer}>
+                {displayedHobbies.map((habit) => {
+                  const streak = calculateStreak(habit.history, todayKey);
+                  const isTodayDone = !!(habit.history && habit.history[todayKey]);
+
+                  return (
+                    <TouchableOpacity
+                      key={habit.id}
+                      style={[styles.circleCard, isTodayDone && styles.circleCardDone]}
+                      onPress={() => toggleHabitToday(habit.id)}
+                      activeOpacity={0.8}
+                    >
+                      {/* Concentric Circle Target (small-habit.png) */}
+                      <View
+                        style={[
+                          styles.concentricOuter,
+                          isTodayDone && styles.concentricOuterDone,
+                        ]}
+                      >
+                        {isTodayDone ? (
+                          <View style={styles.concentricInnerDone} />
+                        ) : (
+                          <View style={styles.concentricInnerEmpty} />
+                        )}
+                      </View>
+
+                      <Text style={styles.circleCardTitle} numberOfLines={1}>
+                        {habit.name}
+                      </Text>
+                      <Text style={styles.circleCardSubtitle}>
+                        {isTodayDone ? 'Done' : `${streak}d streak`}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            )}
+          </>
+        ) : activeTab === 'widgets' ? (
+          /* ========================================================= */
+          /* TAB 2: WIDGETS GALLERY & LIVE PREVIEWS                    */
+          /* ========================================================= */
+          <View style={styles.widgetsGalleryContainer}>
+            <View style={styles.galleryHeader}>
+              <Text style={styles.galleryTitle}>Home Screen Widgets</Text>
+              <Text style={styles.gallerySubtitle}>
+                Add these interactive widgets to your Android home screen.
+              </Text>
+            </View>
+
+            {/* Active Habit Picker for Widgets */}
+            <View style={styles.widgetSelectorCard}>
+              <Text style={styles.widgetSelectorLabel}>Linked Habit for Widgets:</Text>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.pillContainer}
+              >
+                {hobbies.map((h) => {
+                  const isSelected = selectedHobbyId === h.id;
+                  return (
+                    <TouchableOpacity
+                      key={h.id}
+                      style={[styles.pill, isSelected && styles.pillSelected]}
+                      onPress={() => setAsWidgetHabit(h.id)}
+                      activeOpacity={0.7}
+                    >
+                      <Text style={[styles.pillText, isSelected && styles.pillTextSelected]}>
+                        {h.name}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+            </View>
+
+            {/* 1. Small Habit Circle Widget (small-habit.png) */}
+            <View style={styles.previewSection}>
+              <View style={styles.previewHeaderRow}>
+                <Text style={styles.previewTitle}>1. Small Habit (Circle)</Text>
+                <Text style={styles.previewTag}>1x1 Widget</Text>
+              </View>
+              <View style={styles.previewCardCentered}>
+                <TouchableOpacity
+                  style={[
+                    styles.circleWidgetBox,
+                    habitDone(activeWidgetHabit, todayKey) && styles.circleWidgetBoxDone,
+                  ]}
+                  onPress={() => toggleHabitToday(activeWidgetHabit.id)}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.widgetPreviewName} numberOfLines={1}>
+                    {activeWidgetHabit.name}
+                  </Text>
+                  <View
+                    style={[
+                      styles.concentricOuter,
+                      habitDone(activeWidgetHabit, todayKey) && styles.concentricOuterDone,
+                    ]}
+                  >
+                    {habitDone(activeWidgetHabit, todayKey) ? (
+                      <View style={styles.concentricInnerDone} />
+                    ) : (
+                      <View style={styles.concentricInnerEmpty} />
                     )}
                   </View>
+                  <Text style={styles.widgetPreviewStatus}>
+                    {habitDone(activeWidgetHabit, todayKey) ? 'Done' : 'Tap'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* 2. Wide Habit Pill Widget (wide-habit.png) */}
+            <View style={styles.previewSection}>
+              <View style={styles.previewHeaderRow}>
+                <Text style={styles.previewTitle}>2. Wide Habit (Pill)</Text>
+                <Text style={styles.previewTag}>3x1 Widget</Text>
+              </View>
+              <TouchableOpacity
+                style={[
+                  styles.widePillCard,
+                  habitDone(activeWidgetHabit, todayKey) && styles.widePillCardDone,
+                ]}
+                onPress={() => toggleHabitToday(activeWidgetHabit.id)}
+                activeOpacity={0.8}
+              >
+                <View
+                  style={[
+                    styles.wideCircleToggle,
+                    habitDone(activeWidgetHabit, todayKey) && styles.wideCircleToggleDone,
+                  ]}
+                >
+                  {habitDone(activeWidgetHabit, todayKey) && (
+                    <View style={styles.wideCircleInnerDot} />
+                  )}
                 </View>
-              );
-            })}
-          </>
+                <Text style={styles.widePillTitle} numberOfLines={1}>
+                  {activeWidgetHabit.name}
+                </Text>
+                <View style={styles.streakBadgeSmall}>
+                  <Text style={styles.streakBadgeSmallText}>
+                    {calculateStreak(activeWidgetHabit.history, todayKey)}d
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+
+            {/* 3. Habit 30-Day Dot Matrix */}
+            <View style={styles.previewSection}>
+              <View style={styles.previewHeaderRow}>
+                <Text style={styles.previewTitle}>3. Habit 30-Day Matrix</Text>
+                <Text style={styles.previewTag}>3x2 Widget</Text>
+              </View>
+              <TouchableOpacity
+                style={styles.widgetCard}
+                onPress={() => toggleHabitToday(activeWidgetHabit.id)}
+                activeOpacity={0.8}
+              >
+                <View style={styles.widgetHeader}>
+                  <Text style={styles.widgetBigTitle}>{activeWidgetHabit.name}</Text>
+                  <Text style={styles.widgetStatNumber}>
+                    {Math.round(
+                      (getPast30Days(activeWidgetHabit.history, today).filter((d) => d.isDone)
+                        .length /
+                        30) *
+                        100
+                    )}
+                    %
+                  </Text>
+                </View>
+                <View style={styles.grid30Balls}>
+                  {getPast30Days(activeWidgetHabit.history, today).map((d) => (
+                    <View
+                      key={d.key}
+                      style={[
+                        styles.ball30,
+                        d.isDone && styles.ball30Done,
+                        d.isToday && styles.ball30Today,
+                      ]}
+                    />
+                  ))}
+                </View>
+              </TouchableOpacity>
+            </View>
+          </View>
         ) : (
           /* ========================================================= */
-          /* TAB 2: YEAR PROGRESS (Minimalist Dot Matrix)               */
+          /* TAB 3: YEAR PROGRESS (Dot Matrix)                         */
           /* ========================================================= */
           <View style={styles.widgetCard}>
-            {/* Header: Current Date top left, % top right */}
+            {/* Header: Date top left, % top right */}
             <View style={styles.widgetHeader}>
               <View>
                 <Text style={styles.widgetBigTitle}>{yearMetrics.dateString}</Text>
@@ -480,6 +776,10 @@ export default function App() {
   );
 }
 
+function habitDone(habit, todayKey) {
+  return !!(habit && habit.history && habit.history[todayKey]);
+}
+
 const windowWidth = Dimensions.get('window').width;
 const cardWidth = Math.min(windowWidth - 32, 380);
 const dotCols = 19;
@@ -509,12 +809,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#1c1c1e',
     borderRadius: 20,
     padding: 3,
-    marginVertical: 12,
+    marginVertical: 10,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.08)',
   },
   tabBtn: {
-    paddingHorizontal: 22,
+    paddingHorizontal: 18,
     paddingVertical: 7,
     borderRadius: 17,
   },
@@ -534,6 +834,34 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 40,
     alignItems: 'center',
+  },
+
+  /* View Mode Row */
+  viewModeRow: {
+    width: '100%',
+    maxWidth: 380,
+    flexDirection: 'row',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: 14,
+    padding: 2,
+    marginBottom: 10,
+  },
+  modeBtn: {
+    flex: 1,
+    paddingVertical: 6,
+    alignItems: 'center',
+    borderRadius: 12,
+  },
+  modeBtnActive: {
+    backgroundColor: 'rgba(255, 255, 255, 0.14)',
+  },
+  modeBtnText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#8e8e93',
+  },
+  modeBtnTextActive: {
+    color: '#ffffff',
   },
 
   /* Habit Filter Pills */
@@ -676,6 +1004,29 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderColor: '#ffffff',
   },
+  toggleInnerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  toggleCircleIcon: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    borderWidth: 2,
+    borderColor: '#ffffff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  toggleCircleIconDone: {
+    borderColor: '#000000',
+  },
+  toggleCircleInnerDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#000000',
+  },
   toggleButtonText: {
     color: '#ffffff',
     fontSize: 13,
@@ -709,6 +1060,220 @@ const styles = StyleSheet.create({
   ball30Today: {
     borderWidth: 2,
     borderColor: '#0a84ff',
+  },
+
+  /* Wide Pill Mode (wide-habit.png) */
+  wideListContainer: {
+    width: '100%',
+    maxWidth: 380,
+    gap: 10,
+  },
+  widePillCard: {
+    width: '100%',
+    backgroundColor: '#1c1c1e',
+    borderRadius: 999,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  widePillCardDone: {
+    borderColor: '#ffffff',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  wideCircleToggle: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.55)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 14,
+  },
+  wideCircleToggleDone: {
+    borderColor: '#ffffff',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+  },
+  wideCircleInnerDot: {
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    backgroundColor: '#ffffff',
+  },
+  widePillTitle: {
+    flex: 1,
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#ffffff',
+  },
+  widePillRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  streakBadgeSmall: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  streakBadgeSmallText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#ffffff',
+  },
+  deleteTextSmall: {
+    color: '#ff453a',
+    fontSize: 14,
+    fontWeight: '700',
+    paddingHorizontal: 6,
+  },
+
+  /* Small Circles Mode (small-habit.png) */
+  circlesGridContainer: {
+    width: '100%',
+    maxWidth: 380,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    justifyContent: 'space-between',
+  },
+  circleCard: {
+    width: '48%',
+    backgroundColor: '#1c1c1e',
+    borderRadius: 22,
+    padding: 18,
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.12)',
+  },
+  circleCardDone: {
+    borderColor: '#ffffff',
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+  },
+  concentricOuter: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    borderWidth: 3,
+    borderColor: 'rgba(255, 255, 255, 0.35)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  concentricOuterDone: {
+    borderColor: '#ffffff',
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+  },
+  concentricInnerDone: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: '#ffffff',
+  },
+  concentricInnerEmpty: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  circleCardTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#ffffff',
+    marginTop: 4,
+    textAlign: 'center',
+  },
+  circleCardSubtitle: {
+    fontSize: 12,
+    color: '#8e8e93',
+    marginTop: 2,
+  },
+
+  /* Widgets Gallery */
+  widgetsGalleryContainer: {
+    width: '100%',
+    maxWidth: 380,
+    gap: 16,
+  },
+  galleryHeader: {
+    marginBottom: 4,
+  },
+  galleryTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#ffffff',
+  },
+  gallerySubtitle: {
+    fontSize: 13,
+    color: '#8e8e93',
+    marginTop: 2,
+  },
+  widgetSelectorCard: {
+    backgroundColor: '#1c1c1e',
+    borderRadius: 18,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  widgetSelectorLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#8e8e93',
+    marginBottom: 8,
+  },
+  previewSection: {
+    gap: 8,
+  },
+  previewHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  previewTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#ffffff',
+  },
+  previewTag: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#5ac8fa',
+    backgroundColor: 'rgba(10, 132, 255, 0.15)',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
+  },
+  previewCardCentered: {
+    alignItems: 'center',
+  },
+  circleWidgetBox: {
+    width: 110,
+    height: 110,
+    backgroundColor: '#1c1c1e',
+    borderRadius: 22,
+    padding: 10,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+  },
+  circleWidgetBoxDone: {
+    borderColor: '#ffffff',
+  },
+  widgetPreviewName: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#ffffff',
+  },
+  widgetPreviewStatus: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#8e8e93',
   },
 
   /* Full Year Dot Grid */

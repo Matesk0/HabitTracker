@@ -6,7 +6,10 @@ import {
   getDateKey,
   getYearMetrics,
   getPast30Days,
+  calculateStreak,
 } from '../utils/habitUtils';
+import { HabitCircleWidget } from './HabitCircleWidget';
+import { HabitWideWidget } from './HabitWideWidget';
 import { HabitCheckInWidget } from './HabitCheckInWidget';
 import { Habit30DayWidget } from './Habit30DayWidget';
 import { YearProgressWidget } from './YearProgressWidget';
@@ -47,6 +50,34 @@ export async function widgetTaskHandler(props) {
   const isDone = !!(habit?.history && habit.history[todayKey]);
 
   switch (widgetName) {
+    case 'HabitCircleWidget': {
+      renderWidget(
+        <HabitCircleWidget
+          habitId={habit.id}
+          habitName={habit.name}
+          isDone={isDone}
+          width={width}
+          height={height}
+        />
+      );
+      break;
+    }
+
+    case 'HabitWideWidget': {
+      const streak = calculateStreak(habit?.history, todayKey);
+      renderWidget(
+        <HabitWideWidget
+          habitId={habit.id}
+          habitName={habit.name}
+          isDone={isDone}
+          streak={streak}
+          width={width}
+          height={height}
+        />
+      );
+      break;
+    }
+
     case 'HabitCheckInWidget': {
       renderWidget(
         <HabitCheckInWidget

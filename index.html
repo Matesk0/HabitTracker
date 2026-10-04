@@ -45,12 +45,12 @@
       background: #1c1c1e;
       border-radius: 20px;
       padding: 3px;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
       border: 1px solid rgba(255, 255, 255, 0.08);
     }
 
     .tab-btn {
-      padding: 7px 20px;
+      padding: 7px 18px;
       border-radius: 17px;
       background: transparent;
       border: none;
@@ -73,6 +73,35 @@
       display: flex;
       flex-direction: column;
       gap: 14px;
+    }
+
+    /* View Mode Selector */
+    .view-mode-bar {
+      display: flex;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 14px;
+      padding: 2px;
+      gap: 2px;
+      margin-bottom: 2px;
+    }
+
+    .mode-btn {
+      flex: 1;
+      padding: 6px;
+      border-radius: 12px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .mode-btn.active {
+      background: rgba(255, 255, 255, 0.14);
+      color: #ffffff;
     }
 
     /* Pills */
@@ -202,7 +231,10 @@
       font-size: 13px;
       font-weight: 700;
       cursor: pointer;
-      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
       transition: all 0.25s;
       margin-bottom: 12px;
     }
@@ -238,6 +270,130 @@
 
     .ball-30.today {
       border: 2px solid #0a84ff;
+    }
+
+    /* Wide Pill Mode (wide-habit.png) */
+    .wide-pill-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .wide-pill-card {
+      width: 100%;
+      background: var(--card-bg);
+      border-radius: 999px;
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .wide-pill-card.done {
+      border-color: #ffffff;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .wide-circle-toggle {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 14px;
+    }
+
+    .wide-circle-toggle.done {
+      border-color: #ffffff;
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .wide-circle-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #ffffff;
+    }
+
+    .wide-pill-name {
+      flex: 1;
+      font-size: 16px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .wide-pill-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .streak-badge-small {
+      padding: 3px 8px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      font-size: 11px;
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    /* Small Circles Mode (small-habit.png) */
+    .circles-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .circle-card {
+      background: var(--card-bg);
+      border-radius: 22px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border: 1.5px solid rgba(255, 255, 255, 0.12);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .circle-card.done {
+      border-color: #ffffff;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .concentric-outer {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      border: 3px solid rgba(255, 255, 255, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 8px 0;
+    }
+
+    .concentric-outer.done {
+      border-color: #ffffff;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .concentric-inner-done {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #ffffff;
+    }
+
+    .concentric-inner-empty {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(255, 255, 255, 0.2);
     }
 
     /* Year Dot Grid */
@@ -386,33 +542,101 @@
   <!-- Top Tab Bar -->
   <div class="tab-bar">
     <button class="tab-btn active" id="tab-habits">Habits</button>
-    <button class="tab-btn" id="tab-year">Year Progress</button>
+    <button class="tab-btn" id="tab-widgets">Widgets</button>
+    <button class="tab-btn" id="tab-year">Year</button>
   </div>
 
   <main class="content-container">
 
     <!-- TAB 1: HABITS -->
-    <div id="section-habits" style="display: flex; flex-direction: column; gap: 14px;">
+    <div id="section-habits" style="display: flex; flex-direction: column; gap: 12px;">
+      <!-- View Mode Selector -->
+      <div class="view-mode-bar">
+        <button class="mode-btn active" id="mode-cards">30-Day Cards</button>
+        <button class="mode-btn" id="mode-wide">Wide Pills</button>
+        <button class="mode-btn" id="mode-circles">Circles</button>
+      </div>
+
+      <!-- Filter Pills -->
       <div class="pills-row">
         <div class="pills-container" id="pills-container"></div>
         <button class="btn-add-small" id="btn-add">+</button>
       </div>
 
-      <!-- Container for all habit cards rendered simultaneously -->
-      <div id="habits-list" style="display: flex; flex-direction: column; gap: 14px;"></div>
+      <!-- Dynamic Habit List -->
+      <div id="habits-list" style="display: flex; flex-direction: column; gap: 12px;"></div>
     </div>
 
-    <!-- TAB 2: YEAR PROGRESS (Minimalist Dot Matrix) -->
+    <!-- TAB 2: WIDGETS GALLERY -->
+    <div id="section-widgets" style="display: none; flex-direction: column; gap: 14px;">
+      <div>
+        <h2 style="font-size: 20px; font-weight: 700;">Home Screen Widgets</h2>
+        <p style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">
+          Preview interactive Android widgets modeled directly after your designs.
+        </p>
+      </div>
+
+      <!-- Small Habit Circle Preview (small-habit.png) -->
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 14px; font-weight: 700;">1. Small Habit (Circle)</span>
+          <span style="font-size: 11px; font-weight: 600; color: #5ac8fa; background: rgba(10,132,255,0.15); padding: 2px 8px; border-radius: 8px;">1x1</span>
+        </div>
+        <div style="display: flex; justify-content: center;">
+          <div id="preview-circle-box" class="circle-card" style="width: 110px; height: 110px; padding: 10px; justify-content: space-between;">
+            <span id="preview-circle-title" style="font-size: 12px; font-weight: 700;">Reading</span>
+            <div id="preview-circle-target" class="concentric-outer">
+              <div class="concentric-inner-done"></div>
+            </div>
+            <span id="preview-circle-status" style="font-size: 10px; color: var(--text-muted);">Tap</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wide Habit Pill Preview (wide-habit.png) -->
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 14px; font-weight: 700;">2. Wide Habit (Pill)</span>
+          <span style="font-size: 11px; font-weight: 600; color: #5ac8fa; background: rgba(10,132,255,0.15); padding: 2px 8px; border-radius: 8px;">3x1</span>
+        </div>
+        <div id="preview-wide-box" class="wide-pill-card">
+          <div id="preview-wide-circle" class="wide-circle-toggle">
+            <div class="wide-circle-dot"></div>
+          </div>
+          <span id="preview-wide-title" class="wide-pill-name">Reading</span>
+          <div class="streak-badge-small" id="preview-wide-streak">3d</div>
+        </div>
+      </div>
+
+      <!-- 30-Day Matrix Preview -->
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 14px; font-weight: 700;">3. 30-Day Matrix Widget</span>
+          <span style="font-size: 11px; font-weight: 600; color: #5ac8fa; background: rgba(10,132,255,0.15); padding: 2px 8px; border-radius: 8px;">3x2</span>
+        </div>
+        <div class="widget-card" id="preview-30d-box">
+          <div class="widget-header">
+            <div class="title-big" id="preview-30d-title">Reading</div>
+            <div class="widget-stat-right">
+              <div class="stat-number" id="preview-30d-pct">80%</div>
+            </div>
+          </div>
+          <div class="grid-30-balls" id="preview-30d-grid"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: YEAR PROGRESS -->
     <div id="section-year" style="display: none; flex-direction: column; gap: 14px;">
       <section class="widget-card">
         <div class="widget-header">
           <div class="widget-title-area">
-            <div class="title-big" id="w3-date">Sep 29</div>
+            <div class="title-big" id="w3-date">Jan 1</div>
             <div class="subtitle" id="w3-year">2026</div>
           </div>
           <div class="widget-stat-right">
-            <div class="stat-number" id="w3-pct">75%</div>
-            <div class="stat-label" id="w3-doy">Day 272/365</div>
+            <div class="stat-number" id="w3-pct">0%</div>
+            <div class="stat-label" id="w3-doy">Day 1/365</div>
           </div>
         </div>
 
@@ -422,7 +646,7 @@
 
         <div class="widget-footer">
           <span>Jan 1</span>
-          <span style="color:#fff;font-weight:600" id="w3-today">Day 272</span>
+          <span style="color:#fff;font-weight:600" id="w3-today">Day 1</span>
           <span>Dec 31</span>
         </div>
       </section>
@@ -490,6 +714,7 @@
     const STORAGE_KEY = 'habit_tracker_state_v3';
     const defaultState = {
       activeTab: 'habits',
+      viewMode: 'cards',
       selectedHobbyId: 'reading',
       viewFilter: 'all',
       hobbies: [
@@ -512,6 +737,7 @@
     }
 
     let state = loadState();
+    if (!state.viewMode) state.viewMode = 'cards';
     let deleteTargetId = null;
 
     const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -544,24 +770,50 @@
 
     // Tabs
     const tabHabits = document.getElementById('tab-habits');
+    const tabWidgets = document.getElementById('tab-widgets');
     const tabYear = document.getElementById('tab-year');
     const secHabits = document.getElementById('section-habits');
+    const secWidgets = document.getElementById('section-widgets');
     const secYear = document.getElementById('section-year');
 
     function setTab(t) {
       state.activeTab = t;
       saveState(state);
       tabHabits.classList.toggle('active', t === 'habits');
+      tabWidgets.classList.toggle('active', t === 'widgets');
       tabYear.classList.toggle('active', t === 'year');
       secHabits.style.display = t === 'habits' ? 'flex' : 'none';
+      secWidgets.style.display = t === 'widgets' ? 'flex' : 'none';
       secYear.style.display = t === 'year' ? 'flex' : 'none';
     }
 
     tabHabits.onclick = () => setTab('habits');
+    tabWidgets.onclick = () => setTab('widgets');
     tabYear.onclick = () => setTab('year');
+
+    // View Modes
+    const modeCards = document.getElementById('mode-cards');
+    const modeWide = document.getElementById('mode-wide');
+    const modeCircles = document.getElementById('mode-circles');
+
+    function setMode(m) {
+      state.viewMode = m;
+      saveState(state);
+      modeCards.classList.toggle('active', m === 'cards');
+      modeWide.classList.toggle('active', m === 'wide');
+      modeCircles.classList.toggle('active', m === 'circles');
+      render();
+    }
+
+    modeCards.onclick = () => setMode('cards');
+    modeWide.onclick = () => setMode('wide');
+    modeCircles.onclick = () => setMode('circles');
 
     function render() {
       setTab(state.activeTab || 'habits');
+      modeCards.classList.toggle('active', state.viewMode === 'cards');
+      modeWide.classList.toggle('active', state.viewMode === 'wide');
+      modeCircles.classList.toggle('active', state.viewMode === 'circles');
 
       const now = new Date();
       const yr = now.getFullYear();
@@ -604,10 +856,203 @@
         ? state.hobbies
         : state.hobbies.filter(h => h.id === state.viewFilter);
 
-      filtered.forEach(hobby => {
-        const doneToday = !!hobby.history[todayKey];
-        const streak = getStreak(hobby, todayKey);
-        const isWidgetActive = (state.selectedHobbyId === hobby.id);
+      const activeHabit = state.hobbies.find(h => h.id === state.selectedHobbyId) || state.hobbies[0];
+
+      if (state.viewMode === 'cards') {
+        filtered.forEach(hobby => {
+          const doneToday = !!hobby.history[todayKey];
+          const streak = getStreak(hobby, todayKey);
+          const isWidgetActive = (state.selectedHobbyId === hobby.id);
+
+          let done30 = 0;
+          const past30 = [];
+          for (let i = 29; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(now.getDate() - i);
+            const k = getKey(d);
+            const isDone = !!hobby.history[k];
+            if (isDone) done30++;
+            past30.push({ key: k, isDone, isToday: i === 0 });
+          }
+          const pct30 = Math.round((done30 / 30) * 100);
+
+          const card = document.createElement('section');
+          card.className = 'widget-card';
+
+          card.innerHTML = `
+            <div class="widget-header">
+              <div class="widget-title-area">
+                <div class="title-big">${hobby.name}</div>
+                <div class="badge-row">
+                  <button class="widget-badge ${isWidgetActive ? 'active' : ''}" data-widget-id="${hobby.id}">
+                    ${isWidgetActive ? '● Active Widget' : '○ Set for Widget'}
+                  </button>
+                  <span class="streak-label">${streak}d streak</span>
+                </div>
+              </div>
+              <div class="widget-stat-right">
+                <div class="stat-number">${pct30}%</div>
+                <div class="stat-label">${done30}/30 done</div>
+              </div>
+            </div>
+
+            <button class="toggle-btn ${doneToday ? 'done' : ''}" data-toggle-today="${hobby.id}">
+              ${doneToday ? '✓ Completed Today' : '○ Mark as Done'}
+            </button>
+
+            <div class="grid-30-balls" id="grid-${hobby.id}"></div>
+
+            <div class="widget-footer">
+              <span>Tap any ball to toggle</span>
+              ${state.hobbies.length > 1 ? `<span class="delete-link" data-delete-id="${hobby.id}">Delete</span>` : ''}
+            </div>
+          `;
+
+          habitsList.appendChild(card);
+
+          card.querySelector(`[data-widget-id="${hobby.id}"]`).onclick = () => {
+            state.selectedHobbyId = hobby.id;
+            saveState(state);
+            render();
+          };
+
+          card.querySelector(`[data-toggle-today="${hobby.id}"]`).onclick = () => {
+            hobby.history[todayKey] = !hobby.history[todayKey];
+            if (!hobby.history[todayKey]) delete hobby.history[todayKey];
+            saveState(state);
+            render();
+          };
+
+          const grid = card.querySelector(`#grid-${hobby.id}`);
+          past30.forEach(dot => {
+            const ball = document.createElement('div');
+            ball.className = `ball-30 ${dot.isDone ? 'done' : ''} ${dot.isToday ? 'today' : ''}`;
+            ball.onclick = () => {
+              hobby.history[dot.key] = !hobby.history[dot.key];
+              if (!hobby.history[dot.key]) delete hobby.history[dot.key];
+              saveState(state);
+              render();
+            };
+            grid.appendChild(ball);
+          });
+
+          const delBtn = card.querySelector(`[data-delete-id="${hobby.id}"]`);
+          if (delBtn) {
+            delBtn.onclick = () => {
+              deleteTargetId = hobby.id;
+              document.getElementById('delete-desc').textContent = `Are you sure you want to delete "${hobby.name}"?`;
+              modalDelete.classList.add('open');
+            };
+          }
+        });
+      } else if (state.viewMode === 'wide') {
+        const wrap = document.createElement('div');
+        wrap.className = 'wide-pill-list';
+
+        filtered.forEach(hobby => {
+          const doneToday = !!hobby.history[todayKey];
+          const streak = getStreak(hobby, todayKey);
+
+          const pill = document.createElement('div');
+          pill.className = `wide-pill-card ${doneToday ? 'done' : ''}`;
+          pill.innerHTML = `
+            <div class="wide-circle-toggle ${doneToday ? 'done' : ''}">
+              ${doneToday ? '<div class="wide-circle-dot"></div>' : ''}
+            </div>
+            <span class="wide-pill-name">${hobby.name}</span>
+            <div class="wide-pill-right">
+              ${streak > 0 ? `<div class="streak-badge-small">${streak}d</div>` : ''}
+              ${state.hobbies.length > 1 ? `<span class="delete-link" data-delete-id="${hobby.id}" style="padding-left:8px;">✕</span>` : ''}
+            </div>
+          `;
+
+          pill.onclick = (e) => {
+            if (e.target.dataset.deleteId) return;
+            hobby.history[todayKey] = !hobby.history[todayKey];
+            if (!hobby.history[todayKey]) delete hobby.history[todayKey];
+            saveState(state);
+            render();
+          };
+
+          const delBtn = pill.querySelector(`[data-delete-id="${hobby.id}"]`);
+          if (delBtn) {
+            delBtn.onclick = (e) => {
+              e.stopPropagation();
+              deleteTargetId = hobby.id;
+              document.getElementById('delete-desc').textContent = `Are you sure you want to delete "${hobby.name}"?`;
+              modalDelete.classList.add('open');
+            };
+          }
+
+          wrap.appendChild(pill);
+        });
+
+        habitsList.appendChild(wrap);
+      } else if (state.viewMode === 'circles') {
+        const wrap = document.createElement('div');
+        wrap.className = 'circles-grid';
+
+        filtered.forEach(hobby => {
+          const doneToday = !!hobby.history[todayKey];
+          const streak = getStreak(hobby, todayKey);
+
+          const box = document.createElement('div');
+          box.className = `circle-card ${doneToday ? 'done' : ''}`;
+          box.innerHTML = `
+            <div class="concentric-outer ${doneToday ? 'done' : ''}">
+              ${doneToday ? '<div class="concentric-inner-done"></div>' : '<div class="concentric-inner-empty"></div>'}
+            </div>
+            <span style="font-size:15px; font-weight:700; margin-top:4px;">${hobby.name}</span>
+            <span style="font-size:12px; color:var(--text-muted); margin-top:2px;">${doneToday ? 'Done' : (streak > 0 ? `${streak}d streak` : 'Tap')}</span>
+          `;
+
+          box.onclick = () => {
+            hobby.history[todayKey] = !hobby.history[todayKey];
+            if (!hobby.history[todayKey]) delete hobby.history[todayKey];
+            saveState(state);
+            render();
+          };
+
+          wrap.appendChild(box);
+        });
+
+        habitsList.appendChild(wrap);
+      }
+
+      // Update Widgets Gallery preview data
+      if (activeHabit) {
+        const isDone = !!activeHabit.history[todayKey];
+        const streak = getStreak(activeHabit, todayKey);
+
+        const circleBox = document.getElementById('preview-circle-box');
+        const circleTarget = document.getElementById('preview-circle-target');
+        document.getElementById('preview-circle-title').textContent = activeHabit.name;
+        document.getElementById('preview-circle-status').textContent = isDone ? 'Done' : 'Tap';
+        circleBox.className = `circle-card ${isDone ? 'done' : ''}`;
+        circleTarget.className = `concentric-outer ${isDone ? 'done' : ''}`;
+        circleTarget.innerHTML = isDone ? '<div class="concentric-inner-done"></div>' : '<div class="concentric-inner-empty"></div>';
+
+        circleBox.onclick = () => {
+          activeHabit.history[todayKey] = !activeHabit.history[todayKey];
+          if (!activeHabit.history[todayKey]) delete activeHabit.history[todayKey];
+          saveState(state);
+          render();
+        };
+
+        const wideBox = document.getElementById('preview-wide-box');
+        const wideCircle = document.getElementById('preview-wide-circle');
+        document.getElementById('preview-wide-title').textContent = activeHabit.name;
+        document.getElementById('preview-wide-streak').textContent = `${streak}d`;
+        wideBox.className = `wide-pill-card ${isDone ? 'done' : ''}`;
+        wideCircle.className = `wide-circle-toggle ${isDone ? 'done' : ''}`;
+        wideCircle.innerHTML = isDone ? '<div class="wide-circle-dot"></div>' : '';
+
+        wideBox.onclick = () => {
+          activeHabit.history[todayKey] = !activeHabit.history[todayKey];
+          if (!activeHabit.history[todayKey]) delete activeHabit.history[todayKey];
+          saveState(state);
+          render();
+        };
 
         let done30 = 0;
         const past30 = [];
@@ -615,87 +1060,22 @@
           const d = new Date();
           d.setDate(now.getDate() - i);
           const k = getKey(d);
-          const isDone = !!hobby.history[k];
-          if (isDone) done30++;
-          past30.push({ key: k, isDone, isToday: i === 0 });
+          const done = !!activeHabit.history[k];
+          if (done) done30++;
+          past30.push({ key: k, isDone: done, isToday: i === 0 });
         }
-        const pct30 = Math.round((done30 / 30) * 100);
-
-        const card = document.createElement('section');
-        card.className = 'widget-card';
-
-        card.innerHTML = `
-          <div class="widget-header">
-            <div class="widget-title-area">
-              <div class="title-big">${hobby.name}</div>
-              <div class="badge-row">
-                <button class="widget-badge ${isWidgetActive ? 'active' : ''}" data-widget-id="${hobby.id}">
-                  ${isWidgetActive ? '● Active Widget' : '○ Set for Widget'}
-                </button>
-                <span class="streak-label">${streak}d streak</span>
-              </div>
-            </div>
-            <div class="widget-stat-right">
-              <div class="stat-number">${pct30}%</div>
-              <div class="stat-label">${done30}/30 done</div>
-            </div>
-          </div>
-
-          <button class="toggle-btn ${doneToday ? 'done' : ''}" data-toggle-today="${hobby.id}">
-            ${doneToday ? '✓ Completed Today' : '○ Mark as Done'}
-          </button>
-
-          <div class="grid-30-balls" id="grid-${hobby.id}"></div>
-
-          <div class="widget-footer">
-            <span>Tap any ball to toggle</span>
-            ${state.hobbies.length > 1 ? `<span class="delete-link" data-delete-id="${hobby.id}">Delete</span>` : ''}
-          </div>
-        `;
-
-        habitsList.appendChild(card);
-
-        // Bind widget badge toggle
-        card.querySelector(`[data-widget-id="${hobby.id}"]`).onclick = () => {
-          state.selectedHobbyId = hobby.id;
-          saveState(state);
-          render();
-        };
-
-        // Bind today toggle
-        card.querySelector(`[data-toggle-today="${hobby.id}"]`).onclick = () => {
-          hobby.history[todayKey] = !hobby.history[todayKey];
-          if (!hobby.history[todayKey]) delete hobby.history[todayKey];
-          saveState(state);
-          render();
-        };
-
-        // Bind 30 balls
-        const grid = card.querySelector(`#grid-${hobby.id}`);
+        document.getElementById('preview-30d-title').textContent = activeHabit.name;
+        document.getElementById('preview-30d-pct').textContent = `${Math.round((done30 / 30) * 100)}%`;
+        const grid30 = document.getElementById('preview-30d-grid');
+        grid30.innerHTML = '';
         past30.forEach(dot => {
-          const ball = document.createElement('div');
-          ball.className = `ball-30 ${dot.isDone ? 'done' : ''} ${dot.isToday ? 'today' : ''}`;
-          ball.onclick = () => {
-            hobby.history[dot.key] = !hobby.history[dot.key];
-            if (!hobby.history[dot.key]) delete hobby.history[dot.key];
-            saveState(state);
-            render();
-          };
-          grid.appendChild(ball);
+          const b = document.createElement('div');
+          b.className = `ball-30 ${dot.isDone ? 'done' : ''} ${dot.isToday ? 'today' : ''}`;
+          grid30.appendChild(b);
         });
+      }
 
-        // Bind delete
-        const delBtn = card.querySelector(`[data-delete-id="${hobby.id}"]`);
-        if (delBtn) {
-          delBtn.onclick = () => {
-            deleteTargetId = hobby.id;
-            document.getElementById('delete-desc').textContent = `Are you sure you want to delete "${hobby.name}"?`;
-            modalDelete.classList.add('open');
-          };
-        }
-      });
-
-      // TAB 2: Year Progress
+      // TAB 3: Year Progress
       document.getElementById('w3-date').textContent = formatDate(now);
       document.getElementById('w3-year').textContent = yr;
       document.getElementById('w3-pct').textContent = `${pct}%`;

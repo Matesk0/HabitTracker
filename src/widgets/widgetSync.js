@@ -4,7 +4,10 @@ import {
   getDateKey,
   getYearMetrics,
   getPast30Days,
+  calculateStreak,
 } from '../utils/habitUtils';
+import { HabitCircleWidget } from './HabitCircleWidget';
+import { HabitWideWidget } from './HabitWideWidget';
 import { HabitCheckInWidget } from './HabitCheckInWidget';
 import { Habit30DayWidget } from './Habit30DayWidget';
 import { YearProgressWidget } from './YearProgressWidget';
@@ -28,6 +31,45 @@ export function syncActiveWidgets(hobbies = [], selectedHobbyId, widgetHabitMap 
       );
     };
 
+    // 1. Small Habit Circle Widget (small-habit.png)
+    requestWidgetUpdate({
+      widgetName: 'HabitCircleWidget',
+      renderWidget: (widgetInfo) => {
+        const habit = resolveHabit(widgetInfo?.widgetId);
+        const isDone = !!(habit?.history && habit.history[todayKey]);
+        return (
+          <HabitCircleWidget
+            habitId={habit.id}
+            habitName={habit.name}
+            isDone={isDone}
+            width={widgetInfo?.width}
+            height={widgetInfo?.height}
+          />
+        );
+      },
+    }).catch(() => {});
+
+    // 2. Wide Habit Pill Widget (wide-habit.png)
+    requestWidgetUpdate({
+      widgetName: 'HabitWideWidget',
+      renderWidget: (widgetInfo) => {
+        const habit = resolveHabit(widgetInfo?.widgetId);
+        const isDone = !!(habit?.history && habit.history[todayKey]);
+        const streak = calculateStreak(habit?.history, todayKey);
+        return (
+          <HabitWideWidget
+            habitId={habit.id}
+            habitName={habit.name}
+            isDone={isDone}
+            streak={streak}
+            width={widgetInfo?.width}
+            height={widgetInfo?.height}
+          />
+        );
+      },
+    }).catch(() => {});
+
+    // 3. Compact Habit Checkmark Widget
     requestWidgetUpdate({
       widgetName: 'HabitCheckInWidget',
       renderWidget: (widgetInfo) => {
@@ -45,6 +87,7 @@ export function syncActiveWidgets(hobbies = [], selectedHobbyId, widgetHabitMap 
       },
     }).catch(() => {});
 
+    // 4. Habit 30-Day Matrix Widget
     requestWidgetUpdate({
       widgetName: 'Habit30DayWidget',
       renderWidget: (widgetInfo) => {
@@ -65,6 +108,7 @@ export function syncActiveWidgets(hobbies = [], selectedHobbyId, widgetHabitMap 
       },
     }).catch(() => {});
 
+    // 5. Year Progress Dot Matrix Widget
     requestWidgetUpdate({
       widgetName: 'YearProgressWidget',
       renderWidget: (widgetInfo) => (

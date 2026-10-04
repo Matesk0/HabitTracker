@@ -1,54 +1,58 @@
-# Habit & Day Tracker (Expo Mobile App)
+# Habit & Day Tracker (Expo Mobile App & Widgets)
 
-A minimalist iOS/Android-widget-styled mobile habit tracker and year progress app built with React Native and Expo.
-
-## 🚀 Run & Install on Mobile via QR Code (Expo Go)
-
-1. Make sure you have the **Expo Go** app installed on your phone ([Google Play](https://play.google.com/store/apps/details?id=host.exp.exponent) or [App Store](https://apps.apple.com/app/expo-go/id982107779)).
-2. Start the Expo development server:
-   ```bash
-   npx expo start
-   ```
-3. **Scan the QR code** printed in your terminal:
-   - **Android**: Scan with the Expo Go app.
-   - **iOS**: Scan with the default Camera app.
-
-The app will instantly open and run on your device!
-
----
-
-## 📲 Instant Web App / PWA Install (No App Store Needed)
-
-You can also open the live web version directly in your mobile browser and select **"Add to Home Screen"**:
-
-👉 **[https://matesk0.github.io/HabitTracker/](https://matesk0.github.io/HabitTracker/)**
+A minimalist iOS/Android-widget-styled mobile habit tracker and year progress application built with React Native and Expo.
 
 ---
 
 ## 📱 Features
 
-- **Habit Tracker**:
-  - **Simultaneous Multi-Habit Overview**: View all your habits at once or filter by pill selection.
-  - **Quick Daily Toggle**: Tap the status dot to mark today as complete.
-  - **30-Day Matrix**: Minimalist circular dot matrix showing the last 30 days of consistency.
-  - **Home Screen Widget Selector**: Choose which habit links to your Android home screen widgets.
-  - **Custom Habit Management**: Add and delete custom habits.
-- **Year Progress**:
-  - **Full Year Dot Matrix**: Dynamic dot grid filling up as the year progresses.
-  - Minimalist header with current date and year completion percentage.
+- **5 Native Android Home Screen Widgets**:
+  - 🔘 **Small Habit (Circle)**: Minimalist 1x1 concentric circle widget with background tap-to-complete.
+  - 💊 **Wide Habit (Pill)**: Sleek 3x1 capsule widget with checkbox, habit title, and streak counter.
+  - 🔲 **Habit Checkmark Card**: Compact 2x2 card widget with status toggle.
+  - 📊 **Habit 30-Day Matrix**: Interactive 3x2 dot matrix showing past 30 days consistency.
+  - 📅 **Year Progress Matrix**: 3x2 dot matrix displaying year completion percentage and 365-day grid.
+- **3 Dynamic In-App Views**:
+  - **30-Day Cards**: Comprehensive view with 30-day dot grid and today toggle.
+  - **Wide Pills**: Minimalist capsule list for rapid daily check-ins.
+  - **Circles**: Grid of concentric circle cards.
+- **Interactive Widgets Tab**: In-app live preview and widget habit assignment.
+- **Year Progress Tab**: Dynamic dot matrix tracking the current day and annual progress.
+- **Custom Habit Management**: Add, delete, and filter habits with persistent offline storage.
 
 ---
 
-## 📱 Android Home Screen Widgets
+## 🚀 Run & Install on Mobile via QR Code (Expo Go)
 
-1. For native home screen widgets, build the preview APK:
+1. Install **Expo Go** on your device ([Google Play](https://play.google.com/store/apps/details?id=host.exp.exponent) or [App Store](https://apps.apple.com/app/expo-go/id982107779)).
+2. Start the development server:
+   ```bash
+   npx expo start
+   ```
+3. **Scan the QR code**:
+   - **Android**: Scan with the Expo Go app.
+   - **iOS**: Scan with the Camera app.
+
+---
+
+## 📲 Instant Web App / PWA Install
+
+Open the live web version directly on your device and tap **"Add to Home Screen"**:
+
+👉 **[https://matesk0.github.io/HabitTracker/](https://matesk0.github.io/HabitTracker/)**
+
+---
+
+## 📱 Android Home Screen Widgets Setup
+
+1. Build the standalone preview APK with widget support:
    ```bash
    eas build -p android --profile preview
    ```
-2. Long-press on your home screen and select **Widgets** → **HabitTracker**:
-   - **Habit 30-Day Matrix**: Interactive 30-day dot matrix with background tap-to-complete.
-   - **Habit Checkmark Dot**: Compact dot widget with background tap-to-complete.
-   - **Year Progress Matrix**: Date, year percentage, and 365-day dot grid.
+2. On your Android home screen:
+   - Long-press the home screen → Tap **Widgets** → Select **HabitTracker**.
+   - Choose your preferred widget style: **Small Habit (Circle)**, **Wide Habit (Pill)**, **Habit 30-Day Matrix**, **Habit Checkmark**, or **Year Progress**.
+   - Tapping the widgets toggles habits directly on your home screen without opening the app!
 
 ---
 

@@ -23,6 +23,28 @@
         {
           "widgets": [
             {
+              "name": "HabitCircleWidget",
+              "label": "Small Habit (Circle)",
+              "description": "Minimalist circular concentric ring habit widget",
+              "minWidth": "60dp",
+              "minHeight": "60dp",
+              "targetCellWidth": 1,
+              "targetCellHeight": 1,
+              "previewImage": "./assets/icon.png",
+              "updatePeriodMillis": 1800000
+            },
+            {
+              "name": "HabitWideWidget",
+              "label": "Wide Habit (Pill)",
+              "description": "Minimalist wide pill habit widget with tap-to-complete",
+              "minWidth": "160dp",
+              "minHeight": "50dp",
+              "targetCellWidth": 3,
+              "targetCellHeight": 1,
+              "previewImage": "./assets/icon.png",
+              "updatePeriodMillis": 1800000
+            },
+            {
               "name": "HabitCheckInWidget",
               "label": "Habit Checkmark",
               "description": "Minimalist habit checkmark dot widget",
